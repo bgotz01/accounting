@@ -50,28 +50,6 @@ const navItems = [
         ),
     },
     {
-        label: "Upload",
-        href: "/upload",
-        icon: (
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path
-                    d="M9 12V3M9 3L5.5 6.5M9 3L12.5 6.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                <path
-                    d="M3 12V14C3 14.5523 3.44772 15 4 15H14C14.5523 15 15 14.5523 15 14V12"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-            </svg>
-        ),
-    },
-    {
         label: "Documents",
         href: "/documents",
         icon: (
@@ -110,6 +88,20 @@ const navItems = [
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path
                     d="M2 5H16M2 9H16M2 13H12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                />
+            </svg>
+        ),
+    },
+    {
+        label: "Statements",
+        href: "/statements",
+        icon: (
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path
+                    d="M3 14V4M7 14V7M11 14V5M15 14V2"
                     stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"

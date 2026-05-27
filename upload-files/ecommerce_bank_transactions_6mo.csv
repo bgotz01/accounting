@@ -1,0 +1,600 @@
+date,description,amount,category
+2025-11-01,Shopify Payout,77640.7,Revenue
+2025-11-01,META ADS,-4206.0,Advertising
+2025-11-01,Warehouse Lease & Utilities,-26935.0,Warehouse
+2025-11-02,UPS Shipping,-1444.0,Shipping
+2025-11-02,Customer Refund,-2149.0,Refunds
+2025-11-02,Shopify Plus,-2457.0,Software
+2025-11-03,Shopify Payout,39295.0,Revenue
+2025-11-03,META ADS,-5636.0,Advertising
+2025-11-03,Shopify Plus,-2406.0,Software
+2025-11-04,META ADS,-4476.0,Advertising
+2025-11-04,Shopify Payout,40876.0,Revenue
+2025-11-05,Shopify Payout,21169.0,Revenue
+2025-11-05,META ADS,-5017.0,Advertising
+2025-11-05,Klaviyo,-1804.0,Software
+2025-11-06,Shopify Payout,27606.0,Revenue
+2025-11-06,META ADS,-7266.0,Advertising
+2025-11-06,DHL Ecommerce,-2775.0,Shipping
+2025-11-06,Customer Refund,-1013.0,Refunds
+2025-11-07,Payroll - Warehouse Staff,-11932.0,Payroll
+2025-11-07,Slack,-301.0,Software
+2025-11-07,Payroll - Customer Support,-14320.0,Payroll
+2025-11-07,Shopify Payout,20614.0,Revenue
+2025-11-07,Payroll - Operations Team,-11164.0,Payroll
+2025-11-07,META ADS,-3027.0,Advertising
+2025-11-07,Payroll - Marketing Team,-14565.0,Payroll
+2025-11-08,Shopify Payout,74857.79,Revenue
+2025-11-08,META ADS,-6575.0,Advertising
+2025-11-08,FedEx Freight,-4308.0,Shipping
+2025-11-08,Owner Distribution,-66943.0,Owner Draw
+2025-11-09,UPS Shipping,-3856.0,Shipping
+2025-11-09,Customer Refund,-211.0,Refunds
+2025-11-10,Shopify Payout,31145.0,Revenue
+2025-11-10,META ADS,-3928.0,Advertising
+2025-11-10,QuickBooks Online,-153.0,Software
+2025-11-11,META ADS,-4369.0,Advertising
+2025-11-11,Shopify Payout,39064.0,Revenue
+2025-11-12,Customer Refund,-2101.0,Refunds
+2025-11-12,Shopify Payout,32038.0,Revenue
+2025-11-12,META ADS,-5471.0,Advertising
+2025-11-13,Shopify Payout,19543.0,Revenue
+2025-11-13,META ADS,-3452.0,Advertising
+2025-11-14,IRS EFTPS TAX PAYMENT,-47190.0,Taxes
+2025-11-14,Shopify Payout,30504.0,Revenue
+2025-11-14,META ADS,-6034.0,Advertising
+2025-11-14,Payroll - Operations Team,-8688.0,Payroll
+2025-11-14,Payroll - Marketing Team,-19645.0,Payroll
+2025-11-14,Payroll - Customer Support,-20308.0,Payroll
+2025-11-14,Payroll - Warehouse Staff,-10376.0,Payroll
+2025-11-15,Shopify Payout,39003.0,Revenue
+2025-11-15,META ADS,-4604.0,Advertising
+2025-11-15,Warehouse Lease & Utilities,-29791.0,Warehouse
+2025-11-16,Customer Refund,-515.0,Refunds
+2025-11-17,UPS Shipping,-7446.0,Shipping
+2025-11-17,Shopify Payout,27779.0,Revenue
+2025-11-17,META ADS,-6358.0,Advertising
+2025-11-18,Customer Refund,-1066.0,Refunds
+2025-11-18,FedEx Freight,-4173.0,Shipping
+2025-11-18,Shopify Payout,35378.0,Revenue
+2025-11-18,META ADS,-7106.0,Advertising
+2025-11-19,Shopify Payout,36813.35,Revenue
+2025-11-19,META ADS,-2766.0,Advertising
+2025-11-19,Customer Refund,-2026.0,Refunds
+2025-11-20,Shopify Payout,23410.0,Revenue
+2025-11-20,META ADS,-7169.0,Advertising
+2025-11-20,DHL Ecommerce,-5617.0,Shipping
+2025-11-21,Payroll - Customer Support,-9549.0,Payroll
+2025-11-21,Payroll - Warehouse Staff,-14039.0,Payroll
+2025-11-21,Payroll - Marketing Team,-12181.0,Payroll
+2025-11-21,Emergency Warehouse Repair,-28858.0,Warehouse
+2025-11-21,META ADS,-7523.0,Advertising
+2025-11-21,Shopify Payout,31074.0,Revenue
+2025-11-21,Payroll - Operations Team,-12561.0,Payroll
+2025-11-22,Owner Distribution,-29643.0,Owner Draw
+2025-11-22,UPS Shipping,-1752.0,Shipping
+2025-11-22,META ADS,-2781.0,Advertising
+2025-11-22,Shopify Payout,37282.0,Revenue
+2025-11-23,UPS Shipping,-5176.0,Shipping
+2025-11-24,Shopify Payout,36711.0,Revenue
+2025-11-24,META ADS,-4190.0,Advertising
+2025-11-24,Customer Refund,-477.0,Refunds
+2025-11-25,DHL Ecommerce,-6553.0,Shipping
+2025-11-25,Customer Refund,-1729.0,Refunds
+2025-11-25,Shopify Payout,29609.0,Revenue
+2025-11-25,META ADS,-6025.0,Advertising
+2025-11-26,Shopify Payout,21580.0,Revenue
+2025-11-26,META ADS,-3758.0,Advertising
+2025-11-26,FedEx Freight,-2703.0,Shipping
+2025-11-27,Shopify Payout,20470.0,Revenue
+2025-11-27,META ADS,-6708.0,Advertising
+2025-11-27,Chargeback Reserve Hold,-16706.0,Bank Adjustment
+2025-11-28,Payroll - Warehouse Staff,-14896.0,Payroll
+2025-11-28,IRS EFTPS TAX PAYMENT,-29380.0,Taxes
+2025-11-28,Payroll - Customer Support,-8535.0,Payroll
+2025-11-28,META ADS,-6178.0,Advertising
+2025-11-28,Payroll - Operations Team,-11197.0,Payroll
+2025-11-28,Shopify Payout,25745.0,Revenue
+2025-11-28,Payroll - Marketing Team,-14709.0,Payroll
+2025-11-29,Shopify Payout,32909.0,Revenue
+2025-11-29,META ADS,-7906.0,Advertising
+2025-11-30,UPS Shipping,-3630.0,Shipping
+2025-12-01,Shopify Payout,59045.51,Revenue
+2025-12-01,META ADS,-2610.0,Advertising
+2025-12-01,Warehouse Lease & Utilities,-20579.0,Warehouse
+2025-12-02,Klaviyo,-1793.0,Software
+2025-12-02,Shopify Payout,53645.58,Revenue
+2025-12-02,META ADS,-16707.51,Advertising
+2025-12-02,DHL Ecommerce,-8493.0,Shipping
+2025-12-02,Customer Refund,-242.0,Refunds
+2025-12-03,Gorgias,-879.0,Software
+2025-12-03,Customer Refund,-1701.0,Refunds
+2025-12-03,META ADS,-4336.0,Advertising
+2025-12-03,Shopify Payout,36521.0,Revenue
+2025-12-04,Shopify Payout,32982.0,Revenue
+2025-12-04,META ADS,-8359.0,Advertising
+2025-12-04,DHL Ecommerce,-6288.0,Shipping
+2025-12-05,Slack,-324.0,Software
+2025-12-05,Payroll - Warehouse Staff,-15679.0,Payroll
+2025-12-05,Payroll - Marketing Team,-13169.0,Payroll
+2025-12-05,Payroll - Customer Support,-11084.0,Payroll
+2025-12-05,META ADS,-3285.0,Advertising
+2025-12-05,Shopify Payout,24984.0,Revenue
+2025-12-05,Payroll - Operations Team,-14554.0,Payroll
+2025-12-06,Shopify Payout,39429.0,Revenue
+2025-12-06,META ADS,-7671.0,Advertising
+2025-12-06,UPS Shipping,-6634.0,Shipping
+2025-12-07,Slack,-408.0,Software
+2025-12-07,DHL Ecommerce,-2076.0,Shipping
+2025-12-08,FedEx Freight,-5202.0,Shipping
+2025-12-08,Owner Distribution,-80450.0,Owner Draw
+2025-12-08,META ADS,-7831.0,Advertising
+2025-12-08,Shopify Payout,41514.0,Revenue
+2025-12-09,Shopify Payout,38784.0,Revenue
+2025-12-09,META ADS,-8188.66,Advertising
+2025-12-09,UPS Shipping,-3345.0,Shipping
+2025-12-10,Shopify Payout,32014.0,Revenue
+2025-12-10,META ADS,-7425.76,Advertising
+2025-12-10,Notion,-91.0,Software
+2025-12-11,Shopify Payout,32083.0,Revenue
+2025-12-11,META ADS,-4725.0,Advertising
+2025-12-12,Payroll - Marketing Team,-11032.0,Payroll
+2025-12-12,Payroll - Customer Support,-23667.0,Payroll
+2025-12-12,Payroll - Operations Team,-20779.0,Payroll
+2025-12-12,Payroll - Warehouse Staff,-23735.0,Payroll
+2025-12-12,META ADS,-4244.0,Advertising
+2025-12-12,Shopify Payout,29724.0,Revenue
+2025-12-12,FedEx Freight,-5786.0,Shipping
+2025-12-13,META ADS,-8841.0,Advertising
+2025-12-13,DHL Ecommerce,-2669.0,Shipping
+2025-12-13,Shopify Payout,23324.0,Revenue
+2025-12-14,IRS EFTPS TAX PAYMENT,-29485.0,Taxes
+2025-12-14,DHL Ecommerce,-6687.0,Shipping
+2025-12-15,Shopify Payout,85963.02,Revenue
+2025-12-15,META ADS,-6055.0,Advertising
+2025-12-15,Warehouse Lease & Utilities,-23000.0,Warehouse
+2025-12-16,Shopify Payout,25457.0,Revenue
+2025-12-16,META ADS,-7606.0,Advertising
+2025-12-16,UPS Shipping,-8280.0,Shipping
+2025-12-17,Shopify Payout,39020.0,Revenue
+2025-12-17,META ADS,-7766.0,Advertising
+2025-12-18,Shopify Payout,26559.0,Revenue
+2025-12-18,META ADS,-9170.4,Advertising
+2025-12-18,FedEx Freight,-7642.0,Shipping
+2025-12-19,Payroll - Customer Support,-19753.0,Payroll
+2025-12-19,Payroll - Marketing Team,-17321.0,Payroll
+2025-12-19,Payroll - Operations Team,-21713.0,Payroll
+2025-12-19,Payroll - Warehouse Staff,-20287.0,Payroll
+2025-12-19,META ADS,-6923.0,Advertising
+2025-12-19,Shopify Payout,21789.0,Revenue
+2025-12-19,UPS Shipping,-4772.0,Shipping
+2025-12-20,Shopify Payout,39975.0,Revenue
+2025-12-20,META ADS,-12407.57,Advertising
+2025-12-20,DHL Ecommerce,-3771.0,Shipping
+2025-12-21,DHL Ecommerce,-3733.0,Shipping
+2025-12-22,META ADS,-3771.0,Advertising
+2025-12-22,Owner Distribution,-84166.0,Owner Draw
+2025-12-22,Shopify Payout,27688.0,Revenue
+2025-12-23,Shopify Payout,36648.0,Revenue
+2025-12-23,META ADS,-6688.0,Advertising
+2025-12-23,FedEx Freight,-2921.0,Shipping
+2025-12-24,Shopify Payout,28559.0,Revenue
+2025-12-24,META ADS,-5822.0,Advertising
+2025-12-25,Shopify Payout,23560.0,Revenue
+2025-12-25,META ADS,-4524.0,Advertising
+2025-12-26,Payroll - Marketing Team,-22422.0,Payroll
+2025-12-26,Payroll - Warehouse Staff,-9693.0,Payroll
+2025-12-26,Payroll - Operations Team,-18515.0,Payroll
+2025-12-26,Payroll - Customer Support,-21090.0,Payroll
+2025-12-26,META ADS,-4040.0,Advertising
+2025-12-26,Shopify Payout,25696.0,Revenue
+2025-12-26,UPS Shipping,-1578.0,Shipping
+2025-12-27,Shopify Payout,38636.0,Revenue
+2025-12-27,META ADS,-8084.0,Advertising
+2025-12-27,Customer Refund,-102.0,Refunds
+2025-12-28,IRS EFTPS TAX PAYMENT,-39862.0,Taxes
+2025-12-29,Shopify Payout,40803.0,Revenue
+2025-12-29,META ADS,-2611.0,Advertising
+2025-12-29,Customer Refund,-626.0,Refunds
+2025-12-30,META ADS,-6778.0,Advertising
+2025-12-30,Shopify Payout,39875.0,Revenue
+2025-12-31,Shopify Payout,41569.0,Revenue
+2025-12-31,META ADS,-5695.0,Advertising
+2026-01-01,Shopify Payout,33554.0,Revenue
+2026-01-01,META ADS,-8358.0,Advertising
+2026-01-01,Warehouse Lease & Utilities,-26540.0,Warehouse
+2026-01-02,Payroll - Warehouse Staff,-12288.0,Payroll
+2026-01-02,Payroll - Customer Support,-10971.0,Payroll
+2026-01-02,Figma,-18.0,Software
+2026-01-02,Payroll - Marketing Team,-10767.0,Payroll
+2026-01-02,FedEx Freight,-3951.0,Shipping
+2026-01-02,META ADS,-2834.0,Advertising
+2026-01-02,Shopify Payout,25839.0,Revenue
+2026-01-02,Payroll - Operations Team,-9820.0,Payroll
+2026-01-03,Shopify Payout,43169.25,Revenue
+2026-01-03,META ADS,-6645.0,Advertising
+2026-01-03,FedEx Freight,-8023.0,Shipping
+2026-01-03,Shopify Plus,-2405.0,Software
+2026-01-05,QuickBooks Online,-196.0,Software
+2026-01-05,META ADS,-5632.0,Advertising
+2026-01-05,Shopify Payout,30779.0,Revenue
+2026-01-06,Shopify Payout,32281.0,Revenue
+2026-01-06,META ADS,-5385.0,Advertising
+2026-01-07,Shopify Payout,33315.0,Revenue
+2026-01-07,META ADS,-7297.0,Advertising
+2026-01-07,Shopify Plus,-2579.0,Software
+2026-01-08,Owner Distribution,-49846.0,Owner Draw
+2026-01-08,FedEx Freight,-3877.0,Shipping
+2026-01-08,Shopify Payout,22446.0,Revenue
+2026-01-08,META ADS,-6930.14,Advertising
+2026-01-09,Shopify Payout,31813.0,Revenue
+2026-01-09,META ADS,-2870.0,Advertising
+2026-01-09,Customer Refund,-1513.0,Refunds
+2026-01-09,Payroll - Operations Team,-12173.0,Payroll
+2026-01-09,Payroll - Marketing Team,-19151.0,Payroll
+2026-01-09,Payroll - Customer Support,-9624.0,Payroll
+2026-01-09,Payroll - Warehouse Staff,-21299.0,Payroll
+2026-01-10,Shopify Payout,19319.0,Revenue
+2026-01-10,META ADS,-4225.0,Advertising
+2026-01-10,UPS Shipping,-2448.0,Shipping
+2026-01-10,Customer Refund,-548.0,Refunds
+2026-01-10,QuickBooks Online,-201.0,Software
+2026-01-11,Customer Refund,-549.0,Refunds
+2026-01-12,Shopify Payout,23366.0,Revenue
+2026-01-12,META ADS,-3085.0,Advertising
+2026-01-13,META ADS,-8057.0,Advertising
+2026-01-13,Shopify Payout,30298.0,Revenue
+2026-01-14,Shopify Payout,40845.0,Revenue
+2026-01-14,META ADS,-7805.0,Advertising
+2026-01-14,UPS Shipping,-5836.0,Shipping
+2026-01-14,IRS EFTPS TAX PAYMENT,-40074.0,Taxes
+2026-01-15,Shopify Payout,20259.0,Revenue
+2026-01-15,META ADS,-9590.69,Advertising
+2026-01-15,Warehouse Lease & Utilities,-23934.0,Warehouse
+2026-01-16,META ADS,-5767.0,Advertising
+2026-01-16,Payroll - Warehouse Staff,-17317.0,Payroll
+2026-01-16,Payroll - Customer Support,-23567.0,Payroll
+2026-01-16,Shopify Payout,33064.0,Revenue
+2026-01-16,Payroll - Operations Team,-18591.0,Payroll
+2026-01-16,Payroll - Marketing Team,-21741.0,Payroll
+2026-01-17,META ADS,-8188.0,Advertising
+2026-01-17,Shopify Payout,33232.0,Revenue
+2026-01-17,UPS Shipping,-3211.0,Shipping
+2026-01-19,FedEx Freight,-3316.0,Shipping
+2026-01-19,META ADS,-3689.0,Advertising
+2026-01-19,Shopify Payout,60389.96,Revenue
+2026-01-20,Shopify Payout,27052.0,Revenue
+2026-01-20,META ADS,-6432.0,Advertising
+2026-01-20,FedEx Freight,-7098.0,Shipping
+2026-01-21,Shopify Payout,40629.0,Revenue
+2026-01-21,META ADS,-8031.0,Advertising
+2026-01-21,Customer Refund,-987.0,Refunds
+2026-01-22,Shopify Payout,25972.0,Revenue
+2026-01-22,META ADS,-6964.0,Advertising
+2026-01-22,Owner Distribution,-73885.0,Owner Draw
+2026-01-23,Payroll - Customer Support,-20987.0,Payroll
+2026-01-23,Payroll - Marketing Team,-17279.0,Payroll
+2026-01-23,Payroll - Operations Team,-20671.0,Payroll
+2026-01-23,Payroll - Warehouse Staff,-19807.0,Payroll
+2026-01-23,META ADS,-4419.0,Advertising
+2026-01-23,Shopify Payout,29528.0,Revenue
+2026-01-23,UPS Shipping,-7108.0,Shipping
+2026-01-24,Shopify Payout,25090.0,Revenue
+2026-01-24,META ADS,-4465.0,Advertising
+2026-01-25,FedEx Freight,-2790.0,Shipping
+2026-01-25,Customer Refund,-814.0,Refunds
+2026-01-26,META ADS,-6912.98,Advertising
+2026-01-26,DHL Ecommerce,-2234.0,Shipping
+2026-01-26,Shopify Payout,41200.0,Revenue
+2026-01-27,Shopify Payout,18401.0,Revenue
+2026-01-27,META ADS,-6045.0,Advertising
+2026-01-27,FedEx Freight,-1620.0,Shipping
+2026-01-28,Shopify Payout,20141.0,Revenue
+2026-01-28,META ADS,-2806.0,Advertising
+2026-01-28,Customer Refund,-2385.0,Refunds
+2026-01-28,IRS EFTPS TAX PAYMENT,-31912.0,Taxes
+2026-01-29,Shopify Payout,52565.95,Revenue
+2026-01-29,META ADS,-7166.0,Advertising
+2026-01-30,Payroll - Customer Support,-20996.0,Payroll
+2026-01-30,Payroll - Warehouse Staff,-11904.0,Payroll
+2026-01-30,Payroll - Marketing Team,-10125.0,Payroll
+2026-01-30,Payroll - Operations Team,-20625.0,Payroll
+2026-01-30,UPS Shipping,-6287.0,Shipping
+2026-01-30,META ADS,-7021.0,Advertising
+2026-01-30,Shopify Payout,32507.0,Revenue
+2026-01-31,Shopify Payout,26671.0,Revenue
+2026-01-31,META ADS,-3486.0,Advertising
+2026-01-31,Customer Refund,-1753.0,Refunds
+2026-02-01,Warehouse Lease & Utilities,-21792.0,Warehouse
+2026-02-02,QuickBooks Online,-212.0,Software
+2026-02-02,DHL Ecommerce,-7681.0,Shipping
+2026-02-02,Shopify Payout,27264.0,Revenue
+2026-02-02,META ADS,-10260.14,Advertising
+2026-02-03,Shopify Payout,25366.0,Revenue
+2026-02-03,META ADS,-4376.0,Advertising
+2026-02-03,FedEx Freight,-2559.0,Shipping
+2026-02-03,Slack,-368.0,Software
+2026-02-04,Shopify Payout,40566.0,Revenue
+2026-02-04,META ADS,-5497.0,Advertising
+2026-02-05,Shopify Plus,-2405.0,Software
+2026-02-05,UPS Shipping,-1948.0,Shipping
+2026-02-05,Shopify Payout,19306.0,Revenue
+2026-02-05,META ADS,-8217.0,Advertising
+2026-02-06,Shopify Payout,26831.0,Revenue
+2026-02-06,META ADS,-8451.0,Advertising
+2026-02-06,Payroll - Operations Team,-23508.0,Payroll
+2026-02-06,Payroll - Marketing Team,-13057.0,Payroll
+2026-02-06,Payroll - Customer Support,-11473.0,Payroll
+2026-02-06,Payroll - Warehouse Staff,-18090.0,Payroll
+2026-02-07,Shopify Payout,34112.0,Revenue
+2026-02-07,META ADS,-6050.0,Advertising
+2026-02-07,UPS Shipping,-6689.0,Shipping
+2026-02-07,Notion,-135.0,Software
+2026-02-08,Owner Distribution,-45612.0,Owner Draw
+2026-02-08,DHL Ecommerce,-4480.0,Shipping
+2026-02-08,Customer Refund,-440.0,Refunds
+2026-02-09,Customer Refund,-2302.0,Refunds
+2026-02-09,Shopify Payout,21798.0,Revenue
+2026-02-09,META ADS,-5511.0,Advertising
+2026-02-10,Shopify Payout,19776.0,Revenue
+2026-02-10,META ADS,-5163.0,Advertising
+2026-02-10,Shopify Plus,-2548.0,Software
+2026-02-11,Shopify Payout,22293.0,Revenue
+2026-02-11,META ADS,-5789.0,Advertising
+2026-02-11,Customer Refund,-1060.0,Refunds
+2026-02-12,UPS Shipping,-8092.0,Shipping
+2026-02-12,META ADS,-6724.0,Advertising
+2026-02-12,Shopify Payout,28182.0,Revenue
+2026-02-13,Shopify Payout,23045.0,Revenue
+2026-02-13,META ADS,-8070.0,Advertising
+2026-02-13,Payroll - Operations Team,-16405.0,Payroll
+2026-02-13,Payroll - Marketing Team,-16236.0,Payroll
+2026-02-13,Payroll - Customer Support,-12493.0,Payroll
+2026-02-13,Payroll - Warehouse Staff,-15983.0,Payroll
+2026-02-14,IRS EFTPS TAX PAYMENT,-30104.0,Taxes
+2026-02-14,Shopify Payout,30569.0,Revenue
+2026-02-14,META ADS,-7110.0,Advertising
+2026-02-15,Warehouse Lease & Utilities,-30905.0,Warehouse
+2026-02-16,Shopify Payout,18084.0,Revenue
+2026-02-16,META ADS,-4645.0,Advertising
+2026-02-17,Shopify Payout,32632.0,Revenue
+2026-02-17,META ADS,-5027.0,Advertising
+2026-02-18,Shopify Payout,24181.0,Revenue
+2026-02-18,META ADS,-4156.0,Advertising
+2026-02-18,FedEx Freight,-7553.0,Shipping
+2026-02-18,Customer Refund,-2017.0,Refunds
+2026-02-19,META ADS,-7636.0,Advertising
+2026-02-19,Shopify Payout,30492.0,Revenue
+2026-02-19,Customer Refund,-231.0,Refunds
+2026-02-20,Payroll - Marketing Team,-22769.0,Payroll
+2026-02-20,Payroll - Warehouse Staff,-11029.0,Payroll
+2026-02-20,Payroll - Operations Team,-15217.0,Payroll
+2026-02-20,Payroll - Customer Support,-19227.0,Payroll
+2026-02-20,FedEx Freight,-5508.0,Shipping
+2026-02-20,META ADS,-3022.0,Advertising
+2026-02-20,Customer Refund,-670.0,Refunds
+2026-02-20,Shopify Payout,37339.0,Revenue
+2026-02-21,Shopify Payout,26684.0,Revenue
+2026-02-21,META ADS,-7874.0,Advertising
+2026-02-21,DHL Ecommerce,-3891.0,Shipping
+2026-02-22,FedEx Freight,-7087.0,Shipping
+2026-02-22,Owner Distribution,-27352.0,Owner Draw
+2026-02-23,Shopify Payout,25692.0,Revenue
+2026-02-23,META ADS,-4554.0,Advertising
+2026-02-24,Shopify Payout,38766.0,Revenue
+2026-02-24,META ADS,-3023.0,Advertising
+2026-02-25,Shopify Payout,19838.0,Revenue
+2026-02-25,META ADS,-5270.0,Advertising
+2026-02-25,DHL Ecommerce,-4575.0,Shipping
+2026-02-26,META ADS,-7276.0,Advertising
+2026-02-26,Shopify Payout,49766.6,Revenue
+2026-02-27,Shopify Payout,38902.0,Revenue
+2026-02-27,META ADS,-4291.0,Advertising
+2026-02-27,Payroll - Operations Team,-13212.0,Payroll
+2026-02-27,Payroll - Marketing Team,-19601.0,Payroll
+2026-02-27,Payroll - Customer Support,-17455.0,Payroll
+2026-02-27,Payroll - Warehouse Staff,-11088.0,Payroll
+2026-02-28,META ADS,-4650.0,Advertising
+2026-02-28,Shopify Payout,29323.0,Revenue
+2026-02-28,FedEx Freight,-3248.0,Shipping
+2026-02-28,IRS EFTPS TAX PAYMENT,-25055.0,Taxes
+2026-03-01,Customer Refund,-1642.0,Refunds
+2026-03-01,Warehouse Lease & Utilities,-27370.0,Warehouse
+2026-03-02,DHL Ecommerce,-1266.0,Shipping
+2026-03-02,Shopify Plus,-2445.0,Software
+2026-03-02,Shopify Payout,27695.0,Revenue
+2026-03-02,META ADS,-10760.11,Advertising
+2026-03-03,UPS Shipping,-6415.0,Shipping
+2026-03-03,Gorgias,-890.0,Software
+2026-03-03,Shopify Payout,27378.0,Revenue
+2026-03-03,META ADS,-4085.0,Advertising
+2026-03-04,Shopify Payout,38560.0,Revenue
+2026-03-04,META ADS,-4730.0,Advertising
+2026-03-04,DHL Ecommerce,-4188.0,Shipping
+2026-03-04,Customer Refund,-1288.0,Refunds
+2026-03-05,META ADS,-3282.0,Advertising
+2026-03-05,Slack,-438.0,Software
+2026-03-05,Shopify Payout,31615.0,Revenue
+2026-03-06,Payroll - Warehouse Staff,-22592.0,Payroll
+2026-03-06,Shopify Payout,33789.0,Revenue
+2026-03-06,META ADS,-4617.0,Advertising
+2026-03-06,FedEx Freight,-2143.0,Shipping
+2026-03-06,Payroll - Operations Team,-10806.0,Payroll
+2026-03-06,Payroll - Marketing Team,-20856.0,Payroll
+2026-03-06,Payroll - Customer Support,-12196.0,Payroll
+2026-03-07,UPS Shipping,-4432.0,Shipping
+2026-03-07,Klaviyo,-1784.0,Software
+2026-03-07,Shopify Payout,40098.0,Revenue
+2026-03-07,META ADS,-8791.0,Advertising
+2026-03-08,Owner Distribution,-49970.0,Owner Draw
+2026-03-09,Shopify Payout,47884.7,Revenue
+2026-03-09,META ADS,-2405.0,Advertising
+2026-03-10,Shopify Payout,80761.4,Revenue
+2026-03-10,META ADS,-7943.0,Advertising
+2026-03-10,UPS Shipping,-2345.0,Shipping
+2026-03-10,Slack,-354.0,Software
+2026-03-11,DHL Ecommerce,-7287.0,Shipping
+2026-03-11,META ADS,-3311.0,Advertising
+2026-03-11,Shopify Payout,25693.0,Revenue
+2026-03-12,Shopify Payout,41809.0,Revenue
+2026-03-12,META ADS,-5598.0,Advertising
+2026-03-13,Payroll - Warehouse Staff,-19064.0,Payroll
+2026-03-13,Shopify Payout,46085.05,Revenue
+2026-03-13,META ADS,-5832.0,Advertising
+2026-03-13,UPS Shipping,-4171.0,Shipping
+2026-03-13,Payroll - Operations Team,-14518.0,Payroll
+2026-03-13,Payroll - Marketing Team,-17420.0,Payroll
+2026-03-13,Payroll - Customer Support,-23273.0,Payroll
+2026-03-14,Customer Refund,-948.0,Refunds
+2026-03-14,IRS EFTPS TAX PAYMENT,-13399.0,Taxes
+2026-03-14,Shopify Payout,31046.0,Revenue
+2026-03-14,META ADS,-3200.0,Advertising
+2026-03-15,DHL Ecommerce,-2231.0,Shipping
+2026-03-15,Customer Refund,-2350.0,Refunds
+2026-03-15,Warehouse Lease & Utilities,-21394.0,Warehouse
+2026-03-16,Shopify Payout,25634.0,Revenue
+2026-03-16,META ADS,-3408.0,Advertising
+2026-03-17,Shopify Payout,22259.0,Revenue
+2026-03-17,META ADS,-8741.0,Advertising
+2026-03-17,Customer Refund,-140.0,Refunds
+2026-03-18,Shopify Payout,25796.0,Revenue
+2026-03-18,META ADS,-2329.0,Advertising
+2026-03-18,FedEx Freight,-7276.0,Shipping
+2026-03-19,Shopify Payout,33605.0,Revenue
+2026-03-19,META ADS,-5165.0,Advertising
+2026-03-19,UPS Shipping,-5327.0,Shipping
+2026-03-20,Payroll - Warehouse Staff,-23404.0,Payroll
+2026-03-20,Payroll - Customer Support,-20171.0,Payroll
+2026-03-20,Payroll - Marketing Team,-16532.0,Payroll
+2026-03-20,Payroll - Operations Team,-10268.0,Payroll
+2026-03-20,META ADS,-5952.0,Advertising
+2026-03-20,Shopify Payout,39590.0,Revenue
+2026-03-20,FedEx Freight,-5123.0,Shipping
+2026-03-21,Shopify Payout,20647.0,Revenue
+2026-03-21,META ADS,-6061.68,Advertising
+2026-03-22,Owner Distribution,-54734.0,Owner Draw
+2026-03-23,Shopify Payout,62953.85,Revenue
+2026-03-23,META ADS,-7563.0,Advertising
+2026-03-24,META ADS,-5589.0,Advertising
+2026-03-24,Shopify Payout,32796.0,Revenue
+2026-03-25,Shopify Payout,31984.0,Revenue
+2026-03-25,META ADS,-4288.0,Advertising
+2026-03-25,UPS Shipping,-5085.0,Shipping
+2026-03-25,Customer Refund,-429.0,Refunds
+2026-03-26,Shopify Payout,21164.0,Revenue
+2026-03-26,META ADS,-5252.0,Advertising
+2026-03-27,Payroll - Customer Support,-20313.0,Payroll
+2026-03-27,Payroll - Warehouse Staff,-9342.0,Payroll
+2026-03-27,Payroll - Marketing Team,-23505.0,Payroll
+2026-03-27,Payroll - Operations Team,-22722.0,Payroll
+2026-03-27,Shopify Payout,28801.0,Revenue
+2026-03-27,META ADS,-5565.0,Advertising
+2026-03-28,Shopify Payout,37674.0,Revenue
+2026-03-28,META ADS,-3048.0,Advertising
+2026-03-28,FedEx Freight,-6579.0,Shipping
+2026-03-28,Customer Refund,-523.0,Refunds
+2026-03-28,IRS EFTPS TAX PAYMENT,-34945.0,Taxes
+2026-03-29,FedEx Freight,-7447.0,Shipping
+2026-03-30,META ADS,-8904.0,Advertising
+2026-03-30,Shopify Payout,36381.0,Revenue
+2026-03-31,Shopify Payout,39555.0,Revenue
+2026-03-31,META ADS,-7784.66,Advertising
+2026-04-01,Warehouse Lease & Utilities,-19503.0,Warehouse
+2026-04-01,Shopify Payout,23944.0,Revenue
+2026-04-01,META ADS,-6839.0,Advertising
+2026-04-01,DHL Ecommerce,-7270.0,Shipping
+2026-04-02,Klaviyo,-1887.0,Software
+2026-04-02,FedEx Freight,-7111.0,Shipping
+2026-04-02,Shopify Payout,25049.0,Revenue
+2026-04-02,META ADS,-5916.0,Advertising
+2026-04-03,Shopify Payout,56039.07,Revenue
+2026-04-03,META ADS,-5829.0,Advertising
+2026-04-03,Payroll - Operations Team,-12975.0,Payroll
+2026-04-03,Payroll - Marketing Team,-12031.0,Payroll
+2026-04-03,Payroll - Customer Support,-20868.0,Payroll
+2026-04-03,Payroll - Warehouse Staff,-16894.0,Payroll
+2026-04-03,Klaviyo,-1812.0,Software
+2026-04-04,Customer Refund,-1698.0,Refunds
+2026-04-04,Shopify Payout,27281.0,Revenue
+2026-04-04,META ADS,-7058.0,Advertising
+2026-04-05,FedEx Freight,-2874.0,Shipping
+2026-04-05,Gorgias,-855.0,Software
+2026-04-06,Shopify Payout,51691.66,Revenue
+2026-04-06,META ADS,-5727.0,Advertising
+2026-04-06,UPS Shipping,-6964.0,Shipping
+2026-04-07,Figma,-49.0,Software
+2026-04-07,Customer Refund,-1362.0,Refunds
+2026-04-07,Shopify Payout,61857.03,Revenue
+2026-04-07,META ADS,-2546.0,Advertising
+2026-04-08,Shopify Payout,38976.0,Revenue
+2026-04-08,META ADS,-3143.0,Advertising
+2026-04-08,Customer Refund,-1964.0,Refunds
+2026-04-08,Owner Distribution,-79527.0,Owner Draw
+2026-04-09,Shopify Payout,61970.82,Revenue
+2026-04-09,META ADS,-4193.0,Advertising
+2026-04-09,FedEx Freight,-1844.0,Shipping
+2026-04-10,Payroll - Warehouse Staff,-19074.0,Payroll
+2026-04-10,Payroll - Customer Support,-21917.0,Payroll
+2026-04-10,Payroll - Marketing Team,-20417.0,Payroll
+2026-04-10,Shopify Payout,25260.0,Revenue
+2026-04-10,Customer Refund,-1511.0,Refunds
+2026-04-10,META ADS,-7630.54,Advertising
+2026-04-10,Gorgias,-990.0,Software
+2026-04-10,Payroll - Operations Team,-14252.0,Payroll
+2026-04-11,META ADS,-7134.0,Advertising
+2026-04-11,Customer Refund,-2103.0,Refunds
+2026-04-11,Shopify Payout,26387.0,Revenue
+2026-04-13,Shopify Payout,36497.0,Revenue
+2026-04-13,META ADS,-7316.0,Advertising
+2026-04-14,Shopify Payout,33365.0,Revenue
+2026-04-14,META ADS,-4680.0,Advertising
+2026-04-14,IRS EFTPS TAX PAYMENT,-16862.0,Taxes
+2026-04-15,Shopify Payout,55609.23,Revenue
+2026-04-15,META ADS,-10759.7,Advertising
+2026-04-15,Warehouse Lease & Utilities,-26307.0,Warehouse
+2026-04-16,Shopify Payout,37016.0,Revenue
+2026-04-16,META ADS,-8686.0,Advertising
+2026-04-16,DHL Ecommerce,-7834.0,Shipping
+2026-04-17,Payroll - Customer Support,-16766.0,Payroll
+2026-04-17,Payroll - Marketing Team,-9881.0,Payroll
+2026-04-17,Payroll - Warehouse Staff,-19086.0,Payroll
+2026-04-17,META ADS,-2706.0,Advertising
+2026-04-17,Shopify Payout,33585.0,Revenue
+2026-04-17,Payroll - Operations Team,-20203.0,Payroll
+2026-04-18,META ADS,-5799.0,Advertising
+2026-04-18,Shopify Payout,26118.0,Revenue
+2026-04-19,FedEx Freight,-7544.0,Shipping
+2026-04-20,Shopify Payout,38672.0,Revenue
+2026-04-20,META ADS,-2739.0,Advertising
+2026-04-21,Shopify Payout,39514.0,Revenue
+2026-04-21,META ADS,-7137.0,Advertising
+2026-04-21,DHL Ecommerce,-5973.0,Shipping
+2026-04-21,Customer Refund,-1512.0,Refunds
+2026-04-22,Shopify Payout,39497.0,Revenue
+2026-04-22,META ADS,-5410.0,Advertising
+2026-04-22,Customer Refund,-2369.0,Refunds
+2026-04-22,Owner Distribution,-49686.0,Owner Draw
+2026-04-23,Shopify Payout,28763.0,Revenue
+2026-04-23,META ADS,-7689.0,Advertising
+2026-04-24,Payroll - Warehouse Staff,-11645.0,Payroll
+2026-04-24,Payroll - Customer Support,-16467.0,Payroll
+2026-04-24,Payroll - Marketing Team,-21052.0,Payroll
+2026-04-24,Payroll - Operations Team,-14098.0,Payroll
+2026-04-24,UPS Shipping,-3730.0,Shipping
+2026-04-24,META ADS,-5668.0,Advertising
+2026-04-24,Shopify Payout,21062.0,Revenue
+2026-04-25,Shopify Payout,22507.0,Revenue
+2026-04-25,META ADS,-4623.0,Advertising
+2026-04-25,DHL Ecommerce,-7515.0,Shipping
+2026-04-26,DHL Ecommerce,-3958.0,Shipping
+2026-04-26,Customer Refund,-1623.0,Refunds
+2026-04-27,Shopify Payout,23925.0,Revenue
+2026-04-27,META ADS,-8516.0,Advertising
+2026-04-28,Shopify Payout,29937.0,Revenue
+2026-04-28,META ADS,-4145.0,Advertising
+2026-04-28,IRS EFTPS TAX PAYMENT,-41420.0,Taxes
+2026-04-29,Shopify Payout,25837.0,Revenue
+2026-04-29,META ADS,-8824.0,Advertising
+2026-04-29,Customer Refund,-1884.0,Refunds
+2026-04-30,Shopify Payout,27233.0,Revenue
+2026-04-30,META ADS,-6319.0,Advertising

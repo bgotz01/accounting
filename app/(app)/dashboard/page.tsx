@@ -3,12 +3,10 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
     const data = await getDashboardData();
-
     const hasData = data.transactionCount > 0;
 
     return (
         <div className="mx-auto max-w-5xl space-y-8">
-            {/* Page header */}
             <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                     Dashboard
@@ -21,11 +19,10 @@ export default async function DashboardPage() {
             {!hasData ? (
                 <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        No transaction data yet. Upload and process a file to see your
-                        dashboard.
+                        No transaction data yet. Upload and process a file to see your dashboard.
                     </p>
                     <Link
-                        href="/upload"
+                        href="/documents"
                         className="mt-4 inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
                     >
                         Upload a file
@@ -33,77 +30,123 @@ export default async function DashboardPage() {
                 </div>
             ) : (
                 <>
-                    {/* Financial Health Cards */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* Top metrics */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <MetricCard
-                            label="Cash In"
+                            label="Revenue"
                             value={`$${data.totalIncome.toLocaleString()}`}
+                            change={data.incomeChange}
                             type="income"
                         />
                         <MetricCard
-                            label="Cash Out"
+                            label="Expenses"
                             value={`$${data.totalExpenses.toLocaleString()}`}
+                            change={data.expenseChange}
                             type="expense"
                         />
                         <MetricCard
-                            label="Net Cash Flow"
+                            label="Net Income"
                             value={`${data.netCashFlow >= 0 ? "" : "-"}$${Math.abs(data.netCashFlow).toLocaleString()}`}
                             type={data.netCashFlow >= 0 ? "income" : "expense"}
                         />
+                        <MetricCard
+                            label="Profit Margin"
+                            value={`${data.profitMargin}%`}
+                            type={data.profitMargin >= 0 ? "income" : "expense"}
+                        />
                     </div>
 
-                    {/* Two column layout */}
+                    {/* Monthly trend */}
+                    {data.monthlyTrends.length > 1 && (
+                        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+                            <h2 className="mb-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                Monthly Net Income
+                            </h2>
+                            <div className="overflow-x-auto">
+                                <div className="flex gap-3">
+                                    {data.monthlyTrends.map((m) => (
+                                        <div key={m.month} className="flex min-w-[90px] flex-col items-center gap-1.5 rounded-lg border border-zinc-100 bg-zinc-50/50 px-3 py-3 dark:border-zinc-800 dark:bg-zinc-800/30">
+                                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                                {m.month}
+                                            </span>
+                                            <span
+                                                className={`text-sm font-semibold ${m.net >= 0
+                                                        ? "text-emerald-600 dark:text-emerald-400"
+                                                        : "text-red-600 dark:text-red-400"
+                                                    }`}
+                                            >
+                                                {m.net >= 0 ? "" : "-"}${Math.abs(m.net).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Two column: expenses + top recurring */}
                     <div className="grid gap-6 lg:grid-cols-2">
                         {/* Expenses by Category */}
                         <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
                             <h2 className="mb-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                 Expenses by Category
                             </h2>
-                            {data.expensesByCategory.length === 0 ? (
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                                    No expenses recorded.
-                                </p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {data.expensesByCategory.map((cat) => (
-                                        <ExpenseRow
-                                            key={cat.category}
-                                            label={cat.category}
-                                            amount={`$${cat.amount.toLocaleString()}`}
-                                            pct={cat.pct}
-                                        />
-                                    ))}
-                                </div>
-                            )}
+                            <div className="space-y-3">
+                                {data.expensesByCategory.slice(0, 7).map((cat) => (
+                                    <div key={cat.category} className="flex items-center gap-3">
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm capitalize text-zinc-700 dark:text-zinc-300">
+                                                    {cat.category}
+                                                </span>
+                                                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                                    ${cat.amount.toLocaleString()}
+                                                </span>
+                                            </div>
+                                            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                                                <div
+                                                    className="h-full rounded-full bg-zinc-400 dark:bg-zinc-500"
+                                                    style={{ width: `${cat.pct}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <span className="w-8 text-right text-xs text-zinc-400">
+                                            {cat.pct}%
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Income Statement Summary */}
+                        {/* Top Expenses */}
                         <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
                             <h2 className="mb-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Income Statement
+                                Top Expenses
                             </h2>
-                            <div className="space-y-2">
-                                <StatementRow
-                                    label="Revenue"
-                                    amount={data.totalIncome}
-                                    bold
-                                />
-                                <StatementRow
-                                    label="Total Expenses"
-                                    amount={-data.totalExpenses}
-                                />
-                                <div className="my-2 border-t border-zinc-200 dark:border-zinc-700" />
-                                <StatementRow
-                                    label="Net Income"
-                                    amount={data.netCashFlow}
-                                    bold
-                                    highlight
-                                />
-                            </div>
-                            <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                    Based on {data.transactionCount} transactions
-                                </p>
+                            <div className="space-y-2.5">
+                                {data.topExpenses.map((exp) => (
+                                    <div
+                                        key={exp.description}
+                                        className="flex items-center justify-between"
+                                    >
+                                        <div>
+                                            <p className="text-sm text-zinc-900 dark:text-zinc-100">
+                                                {exp.description}
+                                                {exp.isRecurring && (
+                                                    <span className="ml-1.5 inline-flex rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                                        recurring
+                                                    </span>
+                                                )}
+                                            </p>
+                                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                                {exp.occurrences}× · {exp.financialCategory}
+                                            </p>
+                                        </div>
+                                        <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                            ${exp.totalAmount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -141,18 +184,18 @@ export default async function DashboardPage() {
                                                 {t.description}
                                             </td>
                                             <td className="py-3 pr-4">
-                                                <span className="inline-flex rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                                                <span className="inline-flex rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                                                     {t.financialCategory ?? "other"}
                                                 </span>
                                             </td>
                                             <td
                                                 className={`py-3 text-right font-medium ${t.type === "income"
-                                                        ? "text-emerald-600 dark:text-emerald-400"
-                                                        : "text-zinc-900 dark:text-zinc-100"
+                                                    ? "text-emerald-600 dark:text-emerald-400"
+                                                    : "text-zinc-900 dark:text-zinc-100"
                                                     }`}
                                             >
                                                 {t.type === "income" ? "+" : "-"}$
-                                                {t.amount.toLocaleString()}
+                                                {Math.round(t.amount).toLocaleString()}
                                             </td>
                                         </tr>
                                     ))}
@@ -169,10 +212,12 @@ export default async function DashboardPage() {
 function MetricCard({
     label,
     value,
+    change,
     type,
 }: {
     label: string;
     value: string;
+    change?: number | null;
     type: "income" | "expense";
 }) {
     return (
@@ -182,77 +227,27 @@ function MetricCard({
             </p>
             <p
                 className={`mt-1.5 text-2xl font-semibold tracking-tight ${type === "income"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
                     }`}
             >
                 {value}
             </p>
-        </div>
-    );
-}
-
-function ExpenseRow({
-    label,
-    amount,
-    pct,
-}: {
-    label: string;
-    amount: string;
-    pct: number;
-}) {
-    return (
-        <div className="flex items-center gap-3">
-            <div className="flex-1">
-                <div className="flex items-center justify-between">
-                    <span className="text-sm capitalize text-zinc-700 dark:text-zinc-300">
-                        {label}
-                    </span>
-                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        {amount}
-                    </span>
-                </div>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                    <div
-                        className="h-full rounded-full bg-zinc-400 dark:bg-zinc-500"
-                        style={{ width: `${pct}%` }}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function StatementRow({
-    label,
-    amount,
-    bold,
-    highlight,
-}: {
-    label: string;
-    amount: number;
-    bold?: boolean;
-    highlight?: boolean;
-}) {
-    return (
-        <div className="flex items-center justify-between">
-            <span
-                className={`text-sm ${bold ? "font-semibold text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}`}
-            >
-                {label}
-            </span>
-            <span
-                className={`text-sm font-medium ${highlight
-                        ? amount >= 0
+            {change !== undefined && change !== null && (
+                <p
+                    className={`mt-1 text-xs font-medium ${change >= 0
+                        ? type === "income"
                             ? "text-emerald-600 dark:text-emerald-400"
                             : "text-red-600 dark:text-red-400"
-                        : bold
-                            ? "text-zinc-900 dark:text-zinc-100"
-                            : "text-zinc-700 dark:text-zinc-300"
-                    }`}
-            >
-                {amount >= 0 ? "" : "-"}${Math.abs(amount).toLocaleString()}
-            </span>
+                        : type === "income"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-emerald-600 dark:text-emerald-400"
+                        }`}
+                >
+                    {change >= 0 ? "+" : ""}
+                    {change}% vs last month
+                </p>
+            )}
         </div>
     );
 }

@@ -41,6 +41,7 @@ type Transaction = {
     confidenceScore: number | null;
     filename: string | null;
     notes: string | null;
+    isDuplicate: boolean;
 };
 
 type SortField = "date" | "amount" | "description";
@@ -57,6 +58,7 @@ export default function TransactionsPage() {
     const [showCategoryManager, setShowCategoryManager] = useState(false);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<ViewMode>("all");
+    const [filterSource, setFilterSource] = useState<string | null>(null);
     const [sortField, setSortField] = useState<SortField>("date");
     const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -91,10 +93,14 @@ export default function TransactionsPage() {
     };
 
     // Filter
-    const filtered =
+    let filtered =
         viewMode === "all"
             ? transactions
             : transactions.filter((t) => t.type === viewMode);
+
+    if (filterSource) {
+        filtered = filtered.filter((t) => t.filename === filterSource);
+    }
 
     // Sort
     const sorted = [...filtered].sort((a, b) => {
@@ -105,6 +111,15 @@ export default function TransactionsPage() {
             cmp = a.description.localeCompare(b.description);
         return sortDir === "asc" ? cmp : -cmp;
     });
+
+    // Pagination
+    const PAGE_SIZE = 20;
+    const [page, setPage] = useState(1);
+    const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
+    const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    // Reset page when filter/sort changes
+    useEffect(() => { setPage(1); }, [viewMode, sortField, sortDir]);
 
     const totalIncome = transactions
         .filter((t) => t.type === "income")
@@ -219,6 +234,21 @@ export default function TransactionsPage() {
                     <option value="description-asc">Description (A-Z)</option>
                     <option value="description-desc">Description (Z-A)</option>
                 </select>
+
+                <select
+                    value={filterSource ?? ""}
+                    onChange={(e) => setFilterSource(e.target.value || null)}
+                    className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                >
+                    <option value="">All sources</option>
+                    {[...new Set(transactions.map((t) => t.filename).filter(Boolean))].map(
+                        (name) => (
+                            <option key={name} value={name!}>
+                                {name}
+                            </option>
+                        )
+                    )}
+                </select>
             </div>
 
             {/* Custom category manager (inline expand) */}
@@ -305,6 +335,7 @@ export default function TransactionsPage() {
                                 <th className="w-[110px] px-4 py-3">Source</th>
                                 <th className="w-[150px] px-4 py-3">Financial Category</th>
                                 <th className="w-[80px] px-4 py-3">Type</th>
+                                <th className="w-[120px] px-4 py-3">Document</th>
                                 <th
                                     className="w-[110px] cursor-pointer px-4 py-3 text-right hover:text-zinc-700 dark:hover:text-zinc-200"
                                     onClick={() => handleSort("amount")}
@@ -315,7 +346,7 @@ export default function TransactionsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                            {sorted.map((t) => (
+                            {paginated.map((t) => (
                                 <tr
                                     key={t.id}
                                     className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30"
@@ -324,7 +355,14 @@ export default function TransactionsPage() {
                                         {t.date}
                                     </td>
                                     <td className="truncate px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
-                                        {t.description}
+                                        <span className="flex items-center gap-1.5">
+                                            {t.description}
+                                            {t.isDuplicate && (
+                                                <span className="inline-flex shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                                    DUP
+                                                </span>
+                                            )}
+                                        </span>
                                     </td>
                                     <td className="truncate px-4 py-3">
                                         {t.sourceCategory ? (
@@ -362,6 +400,22 @@ export default function TransactionsPage() {
                                             {t.type}
                                         </span>
                                     </td>
+                                    <td className="truncate px-4 py-3">
+                                        {t.filename ? (
+                                            <button
+                                                onClick={() => setFilterSource(filterSource === t.filename ? null : t.filename)}
+                                                className={`inline-flex max-w-[110px] truncate rounded px-1.5 py-0.5 text-xs transition-colors ${filterSource === t.filename
+                                                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                                                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                                                    }`}
+                                                title={t.filename}
+                                            >
+                                                {t.filename}
+                                            </button>
+                                        ) : (
+                                            <span className="text-xs text-zinc-400">—</span>
+                                        )}
+                                    </td>
                                     <td
                                         className={`px-4 py-3 text-right font-medium ${t.type === "income"
                                             ? "text-emerald-600 dark:text-emerald-400"
@@ -380,6 +434,49 @@ export default function TransactionsPage() {
                 {sorted.length === 0 && (
                     <div className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
                         No transactions found.
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} of {sorted.length}
+                        </p>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setPage(page - 1)}
+                                disabled={page === 1}
+                                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800"
+                            >
+                                Previous
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                                .map((p, idx, arr) => (
+                                    <span key={p}>
+                                        {idx > 0 && arr[idx - 1] !== p - 1 && (
+                                            <span className="px-1 text-xs text-zinc-400">…</span>
+                                        )}
+                                        <button
+                                            onClick={() => setPage(p)}
+                                            className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${p === page
+                                                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                                                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                                                }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    </span>
+                                ))}
+                            <button
+                                onClick={() => setPage(page + 1)}
+                                disabled={page === totalPages}
+                                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

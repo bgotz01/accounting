@@ -25,19 +25,32 @@ export async function getTransactions(fileId?: string) {
         orderBy: { date: "desc" },
     });
 
-    return transactions.map((t) => ({
-        id: t.id,
-        date: t.date.toISOString().split("T")[0],
-        description: t.description,
-        counterparty: t.counterparty,
-        amount: Number(t.amount),
-        currency: t.currency,
-        sourceCategory: t.sourceCategory,
-        financialCategory: t.financialCategory,
-        type: t.type,
-        confidenceScore: t.confidenceScore,
-        filename: t.file?.filename ?? null,
-        notes: t.notes,
+    // Detect duplicates: same date + amount + description
+    const seen = new Map<string, number>();
+    const mapped = transactions.map((t) => {
+        const key = `${t.date.toISOString().split("T")[0]}|${Number(t.amount)}|${t.description}`;
+        seen.set(key, (seen.get(key) || 0) + 1);
+        return {
+            id: t.id,
+            date: t.date.toISOString().split("T")[0],
+            description: t.description,
+            counterparty: t.counterparty,
+            amount: Number(t.amount),
+            currency: t.currency,
+            sourceCategory: t.sourceCategory,
+            financialCategory: t.financialCategory,
+            type: t.type,
+            confidenceScore: t.confidenceScore,
+            filename: t.file?.filename ?? null,
+            notes: t.notes,
+            _key: key,
+        };
+    });
+
+    // Mark duplicates
+    return mapped.map(({ _key, ...t }) => ({
+        ...t,
+        isDuplicate: (seen.get(_key) || 0) > 1,
     }));
 }
 

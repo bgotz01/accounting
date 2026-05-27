@@ -1,41 +1,81 @@
 import { prisma } from "@/app/lib/prisma";
 import { downloadFromStorage } from "@/app/lib/storage";
 import { parseFile } from "./parse-file";
+import { canDirectImport, directImport } from "./direct-import";
 import { extractTransactions } from "./extract-transactions";
+import { extractFromPdf } from "./parse-pdf";
 
 /**
  * Full processing pipeline for an uploaded file:
  * 1. Download from storage
  * 2. Parse into raw rows
- * 3. Send to GPT for extraction
+ * 3. Direct import if structured, otherwise GPT extraction
  * 4. Save transactions to database
  * 5. Update file status
  */
 export async function processFile(fileId: string) {
-    // Get file record
     const file = await prisma.file.findUnique({ where: { id: fileId } });
     if (!file) {
         throw new Error(`File not found: ${fileId}`);
     }
 
-    // Update status to processing
     await prisma.file.update({
         where: { id: fileId },
         data: { processingStatus: "processing" },
     });
 
     try {
-        // Download file from storage
-        const { data: buffer, error: downloadError } = await downloadFromStorage(file.storagePath);
+        const { data: buffer, error: downloadError } =
+            await downloadFromStorage(file.storagePath);
 
         if (downloadError || !buffer) {
             throw new Error(`Failed to download file: ${downloadError}`);
         }
 
-        // Parse the file
-        console.log(`[process] Parsing file: ${file.filename} (${file.fileType})`);
-        const { rows, headers } = await parseFile(buffer.buffer as ArrayBuffer, file.fileType);
-        console.log(`[process] Parsed ${rows.length} rows, ${headers.length} columns: [${headers.slice(0, 5).join(", ")}${headers.length > 5 ? "..." : ""}]`);
+        console.log(
+            `[process] Parsing file: ${file.filename} (${file.fileType})`
+        );
+
+        // PDF processing path — send directly to GPT-4o vision
+        if (file.fileType === "pdf") {
+            const extracted = await extractFromPdf(buffer, file.category);
+
+            if (extracted.length > 0) {
+                const transactions = extracted.map((t) => ({
+                    userId: file.userId,
+                    fileId: file.id,
+                    date: new Date(t.date),
+                    description: t.description,
+                    counterparty: t.counterparty,
+                    amount: t.amount,
+                    currency: t.currency || "USD",
+                    sourceCategory: t.sourceCategory,
+                    financialCategory: t.financialCategory,
+                    type: t.type,
+                    confidenceScore: t.confidenceScore,
+                    notes: t.notes,
+                }));
+
+                await prisma.transaction.createMany({ data: transactions });
+            }
+
+            await prisma.file.update({
+                where: { id: fileId },
+                data: { processingStatus: "completed" },
+            });
+
+            console.log(`[process] PDF complete: ${extracted.length} transactions`);
+            return { transactionCount: extracted.length };
+        }
+
+        // CSV/XLSX processing path
+        const { rows, headers } = await parseFile(
+            buffer.buffer as ArrayBuffer,
+            file.fileType
+        );
+        console.log(
+            `[process] Parsed ${rows.length} rows, ${headers.length} columns: [${headers.slice(0, 5).join(", ")}${headers.length > 5 ? "..." : ""}]`
+        );
 
         if (rows.length === 0) {
             await prisma.file.update({
@@ -45,7 +85,43 @@ export async function processFile(fileId: string) {
             return { transactionCount: 0 };
         }
 
-        // Extract transactions via AI
+        // Try direct import first (fast path for structured CSVs)
+        if (canDirectImport(headers)) {
+            console.log(`[process] Structured file detected — using direct import (no AI)`);
+            const imported = directImport(rows, headers);
+
+            if (imported.length > 0) {
+                const transactions = imported.map((t) => ({
+                    userId: file.userId,
+                    fileId: file.id,
+                    date: new Date(t.date),
+                    description: t.description,
+                    counterparty: null,
+                    amount: t.amount,
+                    currency: "USD",
+                    sourceCategory: t.sourceCategory,
+                    financialCategory: t.financialCategory,
+                    type: t.type,
+                    confidenceScore: 1.0,
+                    notes: null,
+                }));
+
+                await prisma.transaction.createMany({ data: transactions });
+
+                await prisma.file.update({
+                    where: { id: fileId },
+                    data: { processingStatus: "completed" },
+                });
+
+                console.log(
+                    `[process] Direct import complete: ${transactions.length} transactions`
+                );
+                return { transactionCount: transactions.length };
+            }
+        }
+
+        // Fallback: GPT extraction for unstructured/ambiguous data
+        console.log(`[process] Using AI extraction (${rows.length} rows)...`);
         const extracted = await extractTransactions(rows, headers);
 
         if (extracted.length === 0) {
@@ -56,7 +132,6 @@ export async function processFile(fileId: string) {
             return { transactionCount: 0 };
         }
 
-        // Save transactions to database
         const transactions = extracted.map((t) => ({
             userId: file.userId,
             fileId: file.id,
@@ -74,17 +149,18 @@ export async function processFile(fileId: string) {
 
         await prisma.transaction.createMany({ data: transactions });
 
-        // Update file status to completed
         await prisma.file.update({
             where: { id: fileId },
             data: { processingStatus: "completed" },
         });
 
+        console.log(
+            `[process] AI extraction complete: ${transactions.length} transactions`
+        );
         return { transactionCount: transactions.length };
     } catch (error) {
         console.error(`Processing failed for file ${fileId}:`, error);
 
-        // Update status to failed
         await prisma.file.update({
             where: { id: fileId },
             data: { processingStatus: "failed" },
