@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  name             String?
+  avatarUrl        String?  @map("avatar_url")
+  customCategories String[] @default([]) @map("custom_categories")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  files      File[]
+  transactions Transaction[]
+  aiInsights AiInsight[]
+
+  @@map("users")
+}
+
+model File {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  filename         String
+  fileType         String   @map("file_type")
+  storagePath      String   @map("storage_path")
+  category         String   @default("other")
+  period           String?
+  processingStatus String   @default("pending") @map("processing_status")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("files")
+}
+
+model Transaction {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  fileId          String?  @map("file_id")
+  date            DateTime
+  description     String
+  counterparty    String?
+  amount          Decimal  @db.Decimal(12, 2)
+  currency        String   @default("USD")
+  sourceCategory    String?  @map("source_category")
+  financialCategory String?  @map("financial_category")
+  type            String
+  confidenceScore Float?   @map("confidence_score")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+
+  @@map("transactions")
+}
+
+model AiInsight {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  content   String
+  severity  String   @default("info")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_insights")
+}

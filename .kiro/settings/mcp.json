@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "toolbox",
+      "args": [
+        "--prebuilt",
+        "postgres",
+        "--stdio"
+      ],
+      "env": {
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DATABASE": "accounting",
+        "POSTGRES_USER": "borisgotzev",
+        "POSTGRES_PASSWORD": ""
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
