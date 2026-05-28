@@ -95,29 +95,39 @@ export function canDirectImport(headers: string[]): boolean {
         ["date", "transaction date", "trans date", "posting date"].includes(h)
     );
     const hasAmount = lower.some((h) =>
-        ["amount", "total", "value", "debit", "credit"].includes(h)
+        ["amount", "total", "value", "debit", "credit", "spend", "cost", "payment"].includes(h)
     );
     return hasDate && hasAmount;
 }
 
 /**
  * Directly import rows without AI — much faster for structured CSVs.
+ * fileCategory helps determine if amounts are expenses (e.g., ads_reports → marketing expense).
  */
 export function directImport(
     rows: RawRow[],
-    headers: string[]
+    headers: string[],
+    fileCategory?: string
 ): DirectTransaction[] {
     const lower = headers.map((h) => h.toLowerCase().trim());
+
+    // Determine if this file type implies all amounts are expenses
+    const forceExpense = ["ads_reports", "invoices", "receipts", "payroll"].includes(fileCategory ?? "");
+    const defaultFinancialCategory = fileCategory === "ads_reports" ? "marketing"
+        : fileCategory === "payroll" ? "payroll"
+            : fileCategory === "invoices" ? "other"
+                : fileCategory === "receipts" ? "other"
+                    : null;
 
     // Find column indices
     const dateCol = headers[lower.findIndex((h) =>
         ["date", "transaction date", "trans date", "posting date"].includes(h)
     )];
     const amountCol = headers[lower.findIndex((h) =>
-        ["amount", "total", "value"].includes(h)
+        ["amount", "total", "value", "spend", "cost", "payment"].includes(h)
     )];
     const descCol = headers[lower.findIndex((h) =>
-        ["description", "desc", "memo", "narrative", "details", "name"].includes(h)
+        ["description", "desc", "memo", "narrative", "details", "name", "campaign", "vendor", "payee"].includes(h)
     )];
     const catCol = headers[lower.findIndex((h) =>
         ["category", "type", "classification", "class"].includes(h)
@@ -139,28 +149,37 @@ export function directImport(
 
         // Parse amount
         const amount = parseFloat(amountStr.replace(/[,$]/g, ""));
-        if (isNaN(amount)) continue;
+        if (isNaN(amount) || amount === 0) continue;
 
         // Parse date — try ISO format first, then common formats
         let date = dateStr;
         if (!/^\d{4}-\d{2}-\d{2}/.test(date)) {
-            // Try to parse other formats
             const parsed = new Date(date);
             if (!isNaN(parsed.getTime())) {
                 date = parsed.toISOString().split("T")[0];
             } else {
-                continue; // Skip unparseable dates
+                continue;
             }
         }
 
         // Determine type and financial category
-        const isIncome = amount > 0;
-        const type: "income" | "expense" | "transfer" = isIncome ? "income" : "expense";
-        const financialCategory = sourceCategory
-            ? mapCategory(sourceCategory)
-            : isIncome
-                ? "revenue"
-                : "other";
+        let type: "income" | "expense" | "transfer";
+        let financialCategory: string;
+
+        if (forceExpense) {
+            type = "expense";
+            financialCategory = sourceCategory
+                ? mapCategory(sourceCategory)
+                : defaultFinancialCategory ?? "other";
+        } else {
+            const isIncome = amount > 0;
+            type = isIncome ? "income" : "expense";
+            financialCategory = sourceCategory
+                ? mapCategory(sourceCategory)
+                : isIncome
+                    ? "revenue"
+                    : "other";
+        }
 
         transactions.push({
             date,

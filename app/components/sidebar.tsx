@@ -110,6 +110,28 @@ const navItems = [
         ),
     },
     {
+        label: "Ads",
+        href: "/ads",
+        icon: (
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path
+                    d="M2 14L6 10L9 12L16 4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M12 4H16V8"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </svg>
+        ),
+    },
+    {
         label: "Ask AI",
         href: "/chat",
         icon: (

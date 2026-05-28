@@ -85,10 +85,23 @@ export async function processFile(fileId: string) {
             return { transactionCount: 0 };
         }
 
+        // Ads/marketing reports go to a separate table
+        if (file.category === "ads_reports") {
+            const { processAdsData } = await import("./process-ads");
+            console.log(`[process] Ads report detected — importing to ad_spend table`);
+            const result = await processAdsData(file.id, file.userId, rows, headers);
+            await prisma.file.update({
+                where: { id: fileId },
+                data: { processingStatus: "completed" },
+            });
+            console.log(`[process] Ads import complete: ${result.recordCount} records`);
+            return { transactionCount: result.recordCount };
+        }
+
         // Try direct import first (fast path for structured CSVs)
         if (canDirectImport(headers)) {
             console.log(`[process] Structured file detected — using direct import (no AI)`);
-            const imported = directImport(rows, headers);
+            const imported = directImport(rows, headers, file.category);
 
             if (imported.length > 0) {
                 const transactions = imported.map((t) => ({

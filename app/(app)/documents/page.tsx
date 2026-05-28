@@ -12,6 +12,7 @@ const CATEGORIES = [
     { value: "receipts", label: "Receipts" },
     { value: "tax_documents", label: "Tax Documents" },
     { value: "payroll", label: "Payroll" },
+    { value: "ads_reports", label: "Ads / Marketing" },
     { value: "other", label: "Other" },
 ] as const;
 
@@ -27,6 +28,7 @@ const CATEGORY_LABELS: Record<string, string> = {
     receipts: "Receipts",
     tax_documents: "Tax Documents",
     payroll: "Payroll",
+    ads_reports: "Ads / Marketing",
     other: "Other",
 };
 

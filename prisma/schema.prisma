@@ -19,6 +19,7 @@ model User {
 
   files      File[]
   transactions Transaction[]
+  adSpend    AdSpend[]
   aiInsights AiInsight[]
 
   @@map("users")
@@ -37,6 +38,7 @@ model File {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
+  adSpend      AdSpend[]
 
   @@map("files")
 }
@@ -75,4 +77,25 @@ model AiInsight {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ai_insights")
+}
+
+model AdSpend {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  fileId      String?  @map("file_id")
+  date        DateTime
+  platform    String   @default("meta")
+  campaign    String
+  spend       Decimal  @db.Decimal(12, 2)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  purchases   Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(12, 2)
+  roas        Float?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+
+  @@map("ad_spend")
 }

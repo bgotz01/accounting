@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
 import { Sidebar } from "@/app/components/sidebar";
-import { ChatModal } from "@/app/components/chat-modal";
+import { ChatPanel } from "@/app/components/chat-panel";
 
 export default async function AppLayout({
     children,
@@ -39,9 +39,9 @@ export default async function AppLayout({
         <div className="flex flex-1">
             <Sidebar userEmail={user.email ?? ""} />
             <div className="flex flex-1 flex-col overflow-hidden">
+                <ChatPanel />
                 <div className="flex-1 overflow-y-auto px-8 py-8">{children}</div>
             </div>
-            <ChatModal />
         </div>
     );
 }
