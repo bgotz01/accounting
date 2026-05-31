@@ -4,6 +4,7 @@ import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
 import { uploadToStorage } from "@/app/lib/storage";
 import { redirect } from "next/navigation";
+import { classifyFile } from "@/app/lib/processing/classify-file";
 
 const ALLOWED_TYPES = [
     "text/csv",
@@ -99,8 +100,17 @@ export async function uploadFile(
         },
     });
 
+    // Kick off processing in the background — don't await so the upload
+    // response returns immediately while processing runs asynchronously.
+    if (fileType === "csv" || fileType === "xlsx" || fileType === "pdf") {
+        const { processFile } = await import("@/app/lib/processing/process-file");
+        processFile(record.id).catch((err) =>
+            console.error(`[upload] Background processing failed for ${record.id}:`, err)
+        );
+    }
+
     return {
-        success: `"${file.name}" uploaded successfully.`,
+        success: `"${file.name}" uploaded successfully. Processing started.`,
         fileId: record.id,
     };
 }
@@ -122,6 +132,25 @@ export async function getUserFiles() {
     });
 
     return files;
+}
+
+export async function suggestFileCategory(
+    filename: string,
+    sample: string
+): Promise<{ category: string; confidence: number; reason: string } | null> {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return null;
+
+    try {
+        return await classifyFile(filename, sample);
+    } catch (err) {
+        console.error("Category suggestion failed:", err);
+        return null;
+    }
 }
 
 export async function deleteFile(fileId: string) {
@@ -149,6 +178,9 @@ export async function deleteFile(fileId: string) {
 
     // Delete associated transactions
     await prisma.transaction.deleteMany({ where: { fileId: file.id } });
+
+    // Delete associated ad spend records
+    await prisma.adSpend.deleteMany({ where: { fileId: file.id } });
 
     // Delete file record
     await prisma.file.delete({ where: { id: file.id } });

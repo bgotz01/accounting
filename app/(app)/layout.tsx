@@ -3,6 +3,8 @@ import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
 import { Sidebar } from "@/app/components/sidebar";
 import { ChatPanel } from "@/app/components/chat-panel";
+import { ChatProvider } from "@/app/components/chat-context";
+import { CurrencyProvider } from "@/app/components/currency-context";
 
 export default async function AppLayout({
     children,
@@ -35,13 +37,25 @@ export default async function AppLayout({
         }).catch(() => { });
     }
 
+    // Fetch business profile for currency preference
+    const businessProfile = await prisma.businessProfile.findUnique({
+        where: { userId: user.id },
+        select: { currency: true },
+    }).catch(() => null);
+
+    const currency = businessProfile?.currency ?? "USD";
+
     return (
-        <div className="flex flex-1">
-            <Sidebar userEmail={user.email ?? ""} />
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <ChatPanel />
-                <div className="flex-1 overflow-y-auto px-8 py-8">{children}</div>
-            </div>
-        </div>
+        <ChatProvider>
+            <CurrencyProvider currency={currency}>
+                <div className="flex flex-1">
+                    <Sidebar userEmail={user.email ?? ""} />
+                    <div className="flex flex-1 flex-col overflow-hidden">
+                        <ChatPanel />
+                        <div className="flex-1 overflow-y-auto px-8 py-8">{children}</div>
+                    </div>
+                </div>
+            </CurrencyProvider>
+        </ChatProvider>
     );
 }

@@ -1,19 +1,39 @@
 import { getDashboardData } from "./actions";
+import { getBusinessProfile } from "./business-profile-actions";
+import { getInsights } from "./insights-actions";
+import { InsightsPanel } from "./insights-panel";
+import { formatCurrency } from "@/app/lib/currency";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-    const data = await getDashboardData();
+    const [data, businessProfile, insights] = await Promise.all([
+        getDashboardData(),
+        getBusinessProfile(),
+        getInsights(),
+    ]);
     const hasData = data.transactionCount > 0;
+    const currency = businessProfile?.currency ?? "USD";
+    const fmt = (n: number) => formatCurrency(n, currency);
 
     return (
         <div className="mx-auto max-w-5xl space-y-8">
-            <div>
-                <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-                    Dashboard
-                </h1>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Your business at a glance
-                </p>
+            <div className="flex items-start justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                        Dashboard
+                    </h1>
+                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                        {businessProfile?.businessName
+                            ? `${businessProfile.businessName} · ${businessProfile.currency}${businessProfile.country ? ` · ${businessProfile.country}` : ""}${businessProfile.accountingStandard ? ` · ${businessProfile.accountingStandard}` : ""}`
+                            : "Your business at a glance"}
+                    </p>
+                </div>
+                <Link
+                    href="/profile"
+                    className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                    {businessProfile ? "Edit profile" : "Set up profile"}
+                </Link>
             </div>
 
             {!hasData ? (
@@ -34,19 +54,19 @@ export default async function DashboardPage() {
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <MetricCard
                             label="Revenue"
-                            value={`$${data.totalIncome.toLocaleString()}`}
+                            value={fmt(data.totalIncome)}
                             change={data.incomeChange}
                             type="income"
                         />
                         <MetricCard
                             label="Expenses"
-                            value={`$${data.totalExpenses.toLocaleString()}`}
+                            value={fmt(data.totalExpenses)}
                             change={data.expenseChange}
                             type="expense"
                         />
                         <MetricCard
                             label="Net Income"
-                            value={`${data.netCashFlow >= 0 ? "" : "-"}$${Math.abs(data.netCashFlow).toLocaleString()}`}
+                            value={fmt(data.netCashFlow)}
                             type={data.netCashFlow >= 0 ? "income" : "expense"}
                         />
                         <MetricCard
@@ -71,11 +91,11 @@ export default async function DashboardPage() {
                                             </span>
                                             <span
                                                 className={`text-sm font-semibold ${m.net >= 0
-                                                        ? "text-emerald-600 dark:text-emerald-400"
-                                                        : "text-red-600 dark:text-red-400"
+                                                    ? "text-emerald-600 dark:text-emerald-400"
+                                                    : "text-red-600 dark:text-red-400"
                                                     }`}
                                             >
-                                                {m.net >= 0 ? "" : "-"}${Math.abs(m.net).toLocaleString()}
+                                                {fmt(m.net)}
                                             </span>
                                         </div>
                                     ))}
@@ -100,7 +120,7 @@ export default async function DashboardPage() {
                                                     {cat.category}
                                                 </span>
                                                 <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                                                    ${cat.amount.toLocaleString()}
+                                                    {fmt(cat.amount)}
                                                 </span>
                                             </div>
                                             <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
@@ -143,7 +163,7 @@ export default async function DashboardPage() {
                                             </p>
                                         </div>
                                         <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                                            ${exp.totalAmount.toLocaleString()}
+                                            {fmt(exp.totalAmount)}
                                         </span>
                                     </div>
                                 ))}
@@ -152,18 +172,17 @@ export default async function DashboardPage() {
                     </div>
 
                     {/* Recent Transactions */}
-                    <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                                Recent Transactions
-                            </h2>
-                            <Link
-                                href="/transactions"
-                                className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                            >
-                                View all →
-                            </Link>
-                        </div>
+                    <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">                        <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                            Recent Transactions
+                        </h2>
+                        <Link
+                            href="/transactions"
+                            className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                        >
+                            View all →
+                        </Link>
+                    </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
@@ -194,8 +213,7 @@ export default async function DashboardPage() {
                                                     : "text-zinc-900 dark:text-zinc-100"
                                                     }`}
                                             >
-                                                {t.type === "income" ? "+" : "-"}$
-                                                {Math.round(t.amount).toLocaleString()}
+                                                {t.type === "income" ? "+" : "-"}{fmt(t.amount)}
                                             </td>
                                         </tr>
                                     ))}
@@ -203,6 +221,9 @@ export default async function DashboardPage() {
                             </table>
                         </div>
                     </div>
+
+                    {/* AI Insights */}
+                    <InsightsPanel initialInsights={insights} />
                 </>
             )}
         </div>

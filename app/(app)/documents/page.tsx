@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef, useActionState } from "react";
 import { getAllFiles, getFileDownloadUrl, getFilePreviewContent } from "./actions";
-import { processFileAction } from "./process-action";
-import { uploadFile, deleteFile } from "../upload/actions";
+import { uploadFile, deleteFile, suggestFileCategory } from "../upload/actions";
 import { checkDuplicates, deleteDuplicateTransactions, type DuplicateGroup } from "../upload/duplicates";
+import { useCurrency } from "@/app/components/currency-context";
 
 const CATEGORIES = [
     { value: "bank_statements", label: "Bank Statements" },
@@ -47,7 +47,7 @@ export default function DocumentsPage() {
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
     const [previewError, setPreviewError] = useState<string | null>(null);
     const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([]);
-    const [processing, setProcessing] = useState<string | null>(null);
+    const { fmt } = useCurrency();
 
     // Upload state
     const [showUpload, setShowUpload] = useState(false);
@@ -57,6 +57,14 @@ export default function DocumentsPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadState, formAction, uploading] = useActionState(uploadFile, null);
+
+    // AI category suggestion state
+    const [suggestedCategory, setSuggestedCategory] = useState<{
+        category: string;
+        confidence: number;
+        reason: string;
+    } | null>(null);
+    const [suggesting, setSuggesting] = useState(false);
 
     // Preview modal
     const [preview, setPreview] = useState<{
@@ -72,10 +80,27 @@ export default function DocumentsPage() {
         checkDuplicates().then(setDuplicates);
     }, []);
 
+    // Poll every 3s while any file is still processing
+    useEffect(() => {
+        const hasProcessing = files.some((f) => f.processingStatus === "processing");
+        if (!hasProcessing) return;
+        const timer = setInterval(async () => {
+            const updated = await getAllFiles();
+            setFiles(updated);
+            const stillProcessing = updated.some((f) => f.processingStatus === "processing");
+            if (!stillProcessing) {
+                clearInterval(timer);
+                checkDuplicates().then(setDuplicates);
+            }
+        }, 3000);
+        return () => clearInterval(timer);
+    }, [files]);
+
     useEffect(() => {
         if (uploadState?.success) {
             getAllFiles().then(setFiles);
             setSelectedFile(null);
+            setSuggestedCategory(null);
             setShowUpload(false);
             checkDuplicates().then(setDuplicates);
         }
@@ -88,6 +113,26 @@ export default function DocumentsPage() {
         else if (e.type === "dragleave") setDragActive(false);
     }, []);
 
+    const triggerCategorySuggestion = useCallback(async (file: File) => {
+        setSuggestedCategory(null);
+        setSuggesting(true);
+        try {
+            // Read up to 2KB of the file as a text sample
+            const slice = file.slice(0, 2048);
+            const sample = await slice.text().catch(() => "");
+            const result = await suggestFileCategory(file.name, sample);
+            if (result) {
+                setSuggestedCategory(result);
+                // Auto-apply if confidence is high enough
+                if (result.confidence >= 0.7) {
+                    setSelectedCategory(result.category);
+                }
+            }
+        } finally {
+            setSuggesting(false);
+        }
+    }, []);
+
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -95,29 +140,18 @@ export default function DocumentsPage() {
         if (e.dataTransfer.files?.[0]) {
             const file = e.dataTransfer.files[0];
             setSelectedFile(file);
+            triggerCategorySuggestion(file);
             if (fileInputRef.current) {
                 const dt = new DataTransfer();
                 dt.items.add(file);
                 fileInputRef.current.files = dt.files;
             }
         }
-    }, []);
+    }, [triggerCategorySuggestion]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleDownload = useCallback(async (fileId: string) => {
         const result = await getFileDownloadUrl(fileId);
         if (result.url) window.open(result.url, "_blank");
-    }, []);
-
-    const handleProcess = useCallback(async (fileId: string) => {
-        setProcessing(fileId);
-        setFiles((prev) =>
-            prev.map((f) => (f.id === fileId ? { ...f, processingStatus: "processing" } : f))
-        );
-        await processFileAction(fileId);
-        const updated = await getAllFiles();
-        setFiles(updated);
-        setProcessing(null);
-        checkDuplicates().then(setDuplicates);
     }, []);
 
     const handleDelete = useCallback(async (fileId: string) => {
@@ -219,6 +253,37 @@ export default function DocumentsPage() {
                         </div>
                     </div>
 
+                    {/* AI category suggestion banner */}
+                    {suggesting && (
+                        <div className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
+                            Detecting document type…
+                        </div>
+                    )}
+                    {!suggesting && suggestedCategory && (
+                        <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-800 dark:bg-blue-950/30">
+                            <p className="text-xs text-blue-700 dark:text-blue-400">
+                                <span className="font-medium">AI suggestion:</span>{" "}
+                                {CATEGORIES.find((c) => c.value === suggestedCategory.category)?.label ?? suggestedCategory.category}
+                                {suggestedCategory.confidence >= 0.7
+                                    ? " (auto-applied)"
+                                    : " — click to apply"}
+                                {suggestedCategory.reason && (
+                                    <span className="ml-1 text-blue-500 dark:text-blue-500">· {suggestedCategory.reason}</span>
+                                )}
+                            </p>
+                            {suggestedCategory.confidence < 0.7 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedCategory(suggestedCategory.category)}
+                                    className="ml-3 shrink-0 rounded-md bg-blue-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                                >
+                                    Apply
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     {/* Drop zone + submit */}
                     <form action={formAction}>
                         <input type="hidden" name="category" value={selectedCategory} />
@@ -241,7 +306,13 @@ export default function DocumentsPage() {
                                 type="file"
                                 name="file"
                                 accept=".csv,.xlsx,.xls,.pdf"
-                                onChange={(e) => { if (e.target.files?.[0]) setSelectedFile(e.target.files[0]); }}
+                                onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                        const file = e.target.files[0];
+                                        setSelectedFile(file);
+                                        triggerCategorySuggestion(file);
+                                    }
+                                }}
                                 className="hidden"
                             />
                             {selectedFile ? (
@@ -348,23 +419,8 @@ export default function DocumentsPage() {
                                             completed →
                                         </a>
                                     ) : (
-                                        <StatusBadge status={processing === file.id ? "processing" : file.processingStatus} />
+                                        <StatusBadge status={file.processingStatus} />
                                     )}
-                                    {(file.processingStatus === "pending" || file.processingStatus === "failed") &&
-                                        (file.fileType === "csv" || file.fileType === "xlsx" || file.fileType === "pdf") &&
-                                        (processing === file.id ? (
-                                            <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-                                                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-                                                Processing...
-                                            </span>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleProcess(file.id)}
-                                                className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                                            >
-                                                Process
-                                            </button>
-                                        ))}
                                     <button
                                         onClick={() => handlePreview(file.id, file.fileType)}
                                         className="rounded-md px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
@@ -441,6 +497,7 @@ function DuplicatesPanel({
     onResolve: (group: DuplicateGroup) => Promise<void>;
 }) {
     const [expanded, setExpanded] = useState(false);
+    const { fmt } = useCurrency();
     const totalCount = duplicates.reduce((sum, g) => sum + (g.count - 1), 0);
     const totalAmount = duplicates.reduce((sum, g) => sum + Math.abs(Number(g.amount)) * (g.count - 1), 0);
 
@@ -454,7 +511,7 @@ function DuplicatesPanel({
                             {totalCount} possible duplicate{totalCount !== 1 ? "s" : ""}
                         </p>
                         <p className="text-xs text-amber-700 dark:text-amber-400">
-                            ${totalAmount.toLocaleString()} across {duplicates.length} group{duplicates.length !== 1 ? "s" : ""}
+                            {fmt(totalAmount)} across {duplicates.length} group{duplicates.length !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
@@ -469,7 +526,7 @@ function DuplicatesPanel({
                             <div key={i} className="flex items-center justify-between rounded-lg border border-amber-200 bg-white p-3 dark:border-amber-800/50 dark:bg-zinc-900">
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{group.description}</p>
-                                    <p className="text-xs text-zinc-500">{group.date} · ${Math.abs(Number(group.amount)).toLocaleString()} · {group.count}×</p>
+                                    <p className="text-xs text-zinc-500">{group.date} · {fmt(Math.abs(Number(group.amount)))} · {group.count}×</p>
                                 </div>
                                 <button
                                     onClick={() => onResolve(group)}

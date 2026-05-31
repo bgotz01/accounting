@@ -71,8 +71,11 @@ export async function getSignedUrl(
     storagePath: string
 ): Promise<{ url: string | null; error: string | null }> {
     if (USE_LOCAL_STORAGE) {
-        // Serve via an API route in dev
-        return { url: `/api/files/${encodeURIComponent(storagePath)}`, error: null };
+        // Serve via an API route in dev.
+        // Encode each segment individually so slashes are preserved as path separators,
+        // while spaces, Arabic characters, and other non-ASCII are percent-encoded.
+        const encodedPath = storagePath.split("/").map(encodeURIComponent).join("/");
+        return { url: `/api/files/${encodedPath}`, error: null };
     }
 
     const adminClient = createAdminClient();

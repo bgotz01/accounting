@@ -5,6 +5,7 @@ import { uploadFile, getUserFiles, deleteFile } from "./actions";
 import { getFileDownloadUrl, getFilePreviewContent } from "../documents/actions";
 import { processFileAction } from "../documents/process-action";
 import { checkDuplicates, deleteDuplicateTransactions, type DuplicateGroup } from "./duplicates";
+import { useCurrency } from "@/app/components/currency-context";
 
 const CATEGORIES = [
     { value: "bank_statements", label: "Bank Statements" },
@@ -49,6 +50,7 @@ export default function UploadPage() {
     const [previewLoading, setPreviewLoading] = useState(false);
     const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { fmt } = useCurrency();
 
     const [state, formAction, pending] = useActionState(uploadFile, null);
 
@@ -531,6 +533,7 @@ function DuplicatesPanel({
     onResolve: (group: DuplicateGroup) => Promise<void>;
 }) {
     const [expanded, setExpanded] = useState(false);
+    const { fmt } = useCurrency();
 
     const totalDuplicateCount = duplicates.reduce((sum, g) => sum + (g.count - 1), 0);
     const totalDuplicateAmount = duplicates.reduce(
@@ -551,7 +554,7 @@ function DuplicatesPanel({
                             {totalDuplicateCount} possible duplicate{totalDuplicateCount !== 1 ? "s" : ""} detected
                         </p>
                         <p className="text-xs text-amber-700 dark:text-amber-400">
-                            ${totalDuplicateAmount.toLocaleString()} in duplicate amounts across {duplicates.length} group{duplicates.length !== 1 ? "s" : ""}
+                            {fmt(totalDuplicateAmount)} in duplicate amounts across {duplicates.length} group{duplicates.length !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
@@ -589,7 +592,7 @@ function DuplicatesPanel({
                                             {group.description}
                                         </p>
                                         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                                            {group.date} · ${Math.abs(Number(group.amount)).toLocaleString()} · {group.count} occurrences
+                                            {group.date} · {fmt(Math.abs(Number(group.amount)))} · {group.count} occurrences
                                         </p>
                                         <div className="mt-1.5 flex flex-wrap gap-1">
                                             {group.transactions.map((t) => (

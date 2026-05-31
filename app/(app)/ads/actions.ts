@@ -32,7 +32,14 @@ export type DailySpend = {
     revenue: number;
 };
 
-export async function getAdsData() {
+export type AdsSourceFile = {
+    id: string;
+    filename: string;
+    recordCount: number;
+    uploadedAt: string;
+};
+
+export async function getAdsData(fileId?: string) {
     const supabase = await createClient();
     const {
         data: { user },
@@ -42,13 +49,51 @@ export async function getAdsData() {
         redirect("/login");
     }
 
+    // Build filter
+    const where: { userId: string; fileId?: string } = { userId: user.id };
+    if (fileId) {
+        where.fileId = fileId;
+    }
+
     const records = await prisma.adSpend.findMany({
-        where: { userId: user.id },
+        where,
         orderBy: { date: "asc" },
     });
 
+    // Get all source files for the filter dropdown
+    const allRecords = await prisma.adSpend.findMany({
+        where: { userId: user.id },
+        select: { fileId: true, file: { select: { id: true, filename: true, createdAt: true } } },
+    });
+
+    const fileMap = new Map<string, { id: string; filename: string; uploadedAt: string; count: number }>();
+    for (const r of allRecords) {
+        if (r.fileId && r.file) {
+            const existing = fileMap.get(r.fileId);
+            if (existing) {
+                existing.count++;
+            } else {
+                fileMap.set(r.fileId, {
+                    id: r.file.id,
+                    filename: r.file.filename,
+                    uploadedAt: r.file.createdAt.toISOString().split("T")[0],
+                    count: 1,
+                });
+            }
+        }
+    }
+
+    const sourceFiles: AdsSourceFile[] = [...fileMap.values()]
+        .map((f) => ({
+            id: f.id,
+            filename: f.filename,
+            recordCount: f.count,
+            uploadedAt: f.uploadedAt,
+        }))
+        .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+
     if (records.length === 0) {
-        return { summary: null, campaigns: [], daily: [] };
+        return { summary: null, campaigns: [], daily: [], sourceFiles };
     }
 
     // Overall summary
@@ -112,5 +157,5 @@ export async function getAdsData() {
         }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
-    return { summary, campaigns, daily };
+    return { summary, campaigns, daily, sourceFiles };
 }

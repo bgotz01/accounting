@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { Markdown } from "@/app/components/markdown";
+import { useChatContext } from "@/app/components/chat-context";
 
 type Message = {
     role: "user" | "assistant";
@@ -13,36 +14,74 @@ type ChatTab = {
     id: string;
     title: string;
     messages: Message[];
+    persisted: boolean; // whether it's been saved to the DB
 };
-
-let nextTabId = 1;
-
-function createTab(): ChatTab {
-    const id = `tab-${nextTabId++}`;
-    return { id, title: "New chat", messages: [] };
-}
 
 export function ChatPanel() {
     const pathname = usePathname();
+    const { openConversationId, clearOpenRequest } = useChatContext();
     const [open, setOpen] = useState(false);
-    const [tabs, setTabs] = useState<ChatTab[]>(() => [createTab()]);
-    const [activeTabId, setActiveTabId] = useState(tabs[0].id);
+    const [tabs, setTabs] = useState<ChatTab[]>([]);
+    const [activeTabId, setActiveTabId] = useState<string | null>(null);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
+    const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0] ?? null;
+
+    // Load saved conversations on mount
+    useEffect(() => {
+        fetch("/api/chat/conversations")
+            .then((r) => r.json())
+            .then((convos: { id: string; title: string }[]) => {
+                if (convos.length > 0) {
+                    const loadedTabs: ChatTab[] = convos.map((c) => ({
+                        id: c.id,
+                        title: c.title,
+                        messages: [],
+                        persisted: true,
+                    }));
+                    setTabs(loadedTabs);
+                    setActiveTabId(loadedTabs[0].id);
+                } else {
+                    createNewTab();
+                }
+                setLoaded(true);
+            })
+            .catch(() => {
+                createNewTab();
+                setLoaded(true);
+            });
+    }, []);
+
+    // Load messages when switching tabs
+    useEffect(() => {
+        if (!activeTab || !activeTab.persisted || activeTab.messages.length > 0) return;
+        fetch(`/api/chat/conversations/${activeTab.id}`)
+            .then((r) => r.json())
+            .then((convo: { messages: Message[] }) => {
+                setTabs((prev) =>
+                    prev.map((t) =>
+                        t.id === activeTab.id
+                            ? { ...t, messages: convo.messages || [] }
+                            : t
+                    )
+                );
+            })
+            .catch(() => { });
+    }, [activeTabId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [activeTab.messages]);
+    }, [activeTab?.messages]);
 
     useEffect(() => {
         if (open) inputRef.current?.focus();
     }, [open]);
 
-    // Close on Escape
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
             if (e.key === "Escape" && open) setOpen(false);
@@ -50,6 +89,85 @@ export function ChatPanel() {
         document.addEventListener("keydown", handleKeyDown);
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, [open]);
+
+    // Respond to sidebar conversation clicks
+    useEffect(() => {
+        if (!openConversationId || !loaded) return;
+
+        const existing = tabs.find((t) => t.id === openConversationId);
+        if (existing) {
+            // Tab already open — just switch to it and open modal
+            setActiveTabId(openConversationId);
+        } else {
+            // Add as a new tab (messages will lazy-load)
+            const newTab: ChatTab = {
+                id: openConversationId,
+                title: "Loading…",
+                messages: [],
+                persisted: true,
+            };
+            // Fetch title
+            fetch(`/api/chat/conversations/${openConversationId}`)
+                .then((r) => r.json())
+                .then((convo: { id: string; title: string; messages: Message[] }) => {
+                    setTabs((prev) => {
+                        const alreadyThere = prev.find((t) => t.id === convo.id);
+                        if (alreadyThere) return prev;
+                        return [...prev, { id: convo.id, title: convo.title, messages: convo.messages || [], persisted: true }];
+                    });
+                    setActiveTabId(convo.id);
+                })
+                .catch(() => { });
+            setTabs((prev) => {
+                const alreadyThere = prev.find((t) => t.id === openConversationId);
+                if (alreadyThere) return prev;
+                return [...prev, newTab];
+            });
+            setActiveTabId(openConversationId);
+        }
+
+        setOpen(true);
+        clearOpenRequest();
+    }, [openConversationId, loaded]);
+    const saveConversation = useCallback((tab: ChatTab) => {
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = setTimeout(() => {
+            if (tab.persisted) {
+                fetch(`/api/chat/conversations/${tab.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: tab.title, messages: tab.messages }),
+                }).catch(() => { });
+            } else {
+                fetch("/api/chat/conversations", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: tab.title, messages: tab.messages }),
+                })
+                    .then((r) => r.json())
+                    .then((convo: { id: string }) => {
+                        setTabs((prev) =>
+                            prev.map((t) =>
+                                t.id === tab.id
+                                    ? { ...t, id: convo.id, persisted: true }
+                                    : t
+                            )
+                        );
+                        if (activeTabId === tab.id) setActiveTabId(convo.id);
+                    })
+                    .catch(() => { });
+            }
+        }, 1000);
+    }, [activeTabId]);
+
+    function createNewTab() {
+        const id = `local-${Date.now()}`;
+        const tab: ChatTab = { id, title: "New chat", messages: [], persisted: false };
+        setTabs((prev) => [...prev, tab]);
+        setActiveTabId(id);
+        setInput("");
+        return tab;
+    }
 
     const updateTabMessages = useCallback(
         (tabId: string, updater: (msgs: Message[]) => Message[]) => {
@@ -69,10 +187,10 @@ export function ChatPanel() {
     }, []);
 
     async function sendMessage(content: string) {
-        if (!content.trim() || isLoading) return;
+        if (!content.trim() || isLoading || !activeTab) return;
 
         const userMessage: Message = { role: "user", content: content.trim() };
-        const tabId = activeTabId;
+        const tabId = activeTab.id;
 
         if (activeTab.messages.length === 0) {
             const title =
@@ -122,6 +240,16 @@ export function ChatPanel() {
                     return updated;
                 });
             }
+
+            // Save after response completes
+            const finalTab = {
+                ...activeTab,
+                title: activeTab.messages.length === 0
+                    ? (content.trim().length > 28 ? content.trim().slice(0, 28) + "…" : content.trim())
+                    : activeTab.title,
+                messages: [...updatedMessages, { role: "assistant" as const, content: assistantContent }],
+            };
+            saveConversation(finalTab);
         } catch {
             updateTabMessages(tabId, (msgs) => [
                 ...msgs,
@@ -142,19 +270,20 @@ export function ChatPanel() {
     }
 
     function addTab() {
-        const tab = createTab();
-        setTabs((prev) => [...prev, tab]);
-        setActiveTabId(tab.id);
-        setInput("");
+        createNewTab();
         if (!open) setOpen(true);
     }
 
     function closeTab(tabId: string, e: React.MouseEvent) {
         e.stopPropagation();
+        const tab = tabs.find((t) => t.id === tabId);
+        if (tab?.persisted) {
+            fetch(`/api/chat/conversations/${tabId}`, { method: "DELETE" }).catch(() => { });
+        }
         setTabs((prev) => {
             const remaining = prev.filter((t) => t.id !== tabId);
             if (remaining.length === 0) {
-                const newTab = createTab();
+                const newTab: ChatTab = { id: `local-${Date.now()}`, title: "New chat", messages: [], persisted: false };
                 setActiveTabId(newTab.id);
                 return [newTab];
             }
@@ -165,11 +294,12 @@ export function ChatPanel() {
         });
     }
 
+    if (!loaded) return null;
+
     return (
         <>
             {/* Tab bar — always visible at top */}
             <div className="flex items-center border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
-                {/* Toggle button */}
                 <button
                     onClick={() => setOpen(!open)}
                     className="flex items-center gap-2 border-r border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
@@ -180,7 +310,6 @@ export function ChatPanel() {
                     AI Chat
                 </button>
 
-                {/* Tabs */}
                 <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto px-1">
                     {tabs.map((tab) => (
                         <button
@@ -190,14 +319,14 @@ export function ChatPanel() {
                                 if (!open) setOpen(true);
                             }}
                             className={`group flex min-w-0 max-w-[160px] items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${tab.id === activeTabId
-                                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100"
-                                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100"
+                                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
                                 }`}
                         >
                             <span className="truncate">{tab.title}</span>
                             <span
                                 onClick={(e) => closeTab(tab.id, e)}
-                                className="ml-auto flex-shrink-0 rounded p-0.5 text-zinc-400 opacity-0 transition-opacity hover:bg-zinc-200 hover:text-zinc-600 group-hover:opacity-100 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                                className="ml-auto flex-shrink-0 rounded p-0.5 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
                             >
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                                     <path d="M18 6L6 18M6 6l12 12" />
@@ -207,7 +336,6 @@ export function ChatPanel() {
                     ))}
                 </div>
 
-                {/* New tab button */}
                 <button
                     onClick={addTab}
                     className="flex-shrink-0 border-l border-zinc-200 px-2.5 py-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:border-zinc-800 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
@@ -220,15 +348,13 @@ export function ChatPanel() {
             </div>
 
             {/* Modal overlay */}
-            {open && (
+            {open && activeTab && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/30 dark:bg-black/50"
                         onClick={() => setOpen(false)}
                     />
 
-                    {/* Modal */}
                     <div className="relative flex h-[70vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">
                         {/* Modal header with tabs */}
                         <div className="flex items-center border-b border-zinc-100 bg-zinc-50 px-2 dark:border-zinc-800 dark:bg-zinc-800/50">
@@ -238,8 +364,8 @@ export function ChatPanel() {
                                         key={tab.id}
                                         onClick={() => setActiveTabId(tab.id)}
                                         className={`group flex min-w-0 max-w-[160px] items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${tab.id === activeTabId
-                                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                                                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                                            ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                                            : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                                             }`}
                                     >
                                         <span className="truncate">{tab.title}</span>
@@ -306,8 +432,8 @@ export function ChatPanel() {
                                         >
                                             <div
                                                 className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${msg.role === "user"
-                                                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                                                        : "bg-zinc-50 text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
+                                                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                                                    : "bg-zinc-50 text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
                                                     }`}
                                             >
                                                 <div className="whitespace-pre-wrap">

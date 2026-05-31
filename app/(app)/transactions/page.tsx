@@ -8,6 +8,7 @@ import {
     addCustomCategory,
     removeCustomCategory,
 } from "./categories";
+import { useCurrency } from "@/app/components/currency-context";
 
 const DEFAULT_FINANCIAL_CATEGORIES = [
     "revenue",
@@ -19,6 +20,7 @@ const DEFAULT_FINANCIAL_CATEGORIES = [
     "utilities",
     "subscriptions",
     "contractor",
+    "training",
     "shipping",
     "refunds",
     "tax",
@@ -51,6 +53,7 @@ type ViewMode = "all" | "income" | "expense";
 export default function TransactionsPage() {
     const searchParams = useSearchParams();
     const fileId = searchParams.get("fileId") ?? undefined;
+    const { fmt } = useCurrency();
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [customCategories, setCustomCategories] = useState<string[]>([]);
@@ -159,7 +162,7 @@ export default function TransactionsPage() {
                         Total Income
                     </p>
                     <p className="mt-1 text-xl font-semibold text-emerald-600 dark:text-emerald-400">
-                        ${totalIncome.toLocaleString()}
+                        {fmt(totalIncome)}
                     </p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
@@ -167,7 +170,7 @@ export default function TransactionsPage() {
                         Total Expenses
                     </p>
                     <p className="mt-1 text-xl font-semibold text-red-600 dark:text-red-400">
-                        ${totalExpenses.toLocaleString()}
+                        {fmt(totalExpenses)}
                     </p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
@@ -177,7 +180,7 @@ export default function TransactionsPage() {
                     <p
                         className={`mt-1 text-xl font-semibold ${totalIncome - totalExpenses >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
                     >
-                        ${(totalIncome - totalExpenses).toLocaleString()}
+                        {fmt(totalIncome - totalExpenses)}
                     </p>
                 </div>
             </div>
@@ -185,23 +188,22 @@ export default function TransactionsPage() {
             {/* Controls row: toggles + custom categories + sort */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
-                        {(["all", "income", "expense"] as ViewMode[]).map((mode) => (
-                            <button
-                                key={mode}
-                                onClick={() => setViewMode(mode)}
-                                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode
-                                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                                    }`}
-                            >
-                                {mode === "all"
-                                    ? `All (${transactions.length})`
-                                    : mode === "income"
-                                        ? `Income (${transactions.filter((t) => t.type === "income").length})`
-                                        : `Expenses (${transactions.filter((t) => t.type === "expense").length})`}
-                            </button>
-                        ))}
+                    <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">                        {(["all", "income", "expense"] as ViewMode[]).map((mode) => (
+                        <button
+                            key={mode}
+                            onClick={() => setViewMode(mode)}
+                            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode
+                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                }`}
+                        >
+                            {mode === "all"
+                                ? `All (${transactions.length})`
+                                : mode === "income"
+                                    ? `Income (${transactions.filter((t) => t.type === "income").length})`
+                                    : `Expenses (${transactions.filter((t) => t.type === "expense").length})`}
+                        </button>
+                    ))}
                     </div>
 
                     <button
@@ -249,6 +251,13 @@ export default function TransactionsPage() {
                         )
                     )}
                 </select>
+
+                <a
+                    href="/api/export/transactions"
+                    className="rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                    Export CSV
+                </a>
             </div>
 
             {/* Custom category manager (inline expand) */}
@@ -405,8 +414,8 @@ export default function TransactionsPage() {
                                             <button
                                                 onClick={() => setFilterSource(filterSource === t.filename ? null : t.filename)}
                                                 className={`inline-flex max-w-[110px] truncate rounded px-1.5 py-0.5 text-xs transition-colors ${filterSource === t.filename
-                                                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                                                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                                                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                                                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
                                                     }`}
                                                 title={t.filename}
                                             >
@@ -422,8 +431,7 @@ export default function TransactionsPage() {
                                             : "text-zinc-900 dark:text-zinc-100"
                                             }`}
                                     >
-                                        {t.type === "income" ? "+" : "-"}$
-                                        {t.amount.toLocaleString()}
+                                        {t.type === "income" ? "+" : "-"}{fmt(t.amount)}
                                     </td>
                                 </tr>
                             ))}
