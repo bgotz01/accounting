@@ -10,7 +10,7 @@ export default async function Navbar() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
-            <nav className="flex h-14 w-full items-center justify-between px-6">
+            <nav className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 dark:bg-white">
                         <svg
@@ -42,26 +42,26 @@ export default async function Navbar() {
                 <div className="flex items-center gap-1">
                     <Link
                         href="/dashboard"
-                        className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                        className="hidden rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     >
                         Dashboard
                     </Link>
                     <Link
                         href="/upload"
-                        className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                        className="hidden rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     >
                         Upload
                     </Link>
                     <Link
                         href="/chat"
-                        className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                        className="hidden rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     >
                         Chat
                     </Link>
-                    <div className="ml-3 h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="ml-3 hidden h-5 w-px bg-zinc-200 sm:block dark:bg-zinc-700" />
                     {user ? (
-                        <div className="ml-3 flex items-center gap-3">
-                            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                        <div className="ml-1 flex items-center gap-2 sm:ml-3 sm:gap-3">
+                            <span className="hidden text-sm text-zinc-700 sm:block dark:text-zinc-300">
                                 {user.user_metadata?.full_name || user.email}
                             </span>
                             <form action={logout}>

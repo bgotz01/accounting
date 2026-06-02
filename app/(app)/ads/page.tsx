@@ -61,7 +61,7 @@ export default function AdsPage() {
 
     return (
         <div className="mx-auto max-w-5xl space-y-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         Ads Analytics

@@ -186,24 +186,25 @@ export default function TransactionsPage() {
             </div>
 
             {/* Controls row: toggles + custom categories + sort */}
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">                        {(["all", "income", "expense"] as ViewMode[]).map((mode) => (
-                        <button
-                            key={mode}
-                            onClick={() => setViewMode(mode)}
-                            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode
-                                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                                }`}
-                        >
-                            {mode === "all"
-                                ? `All (${transactions.length})`
-                                : mode === "income"
-                                    ? `Income (${transactions.filter((t) => t.type === "income").length})`
-                                    : `Expenses (${transactions.filter((t) => t.type === "expense").length})`}
-                        </button>
-                    ))}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
+                        {(["all", "income", "expense"] as ViewMode[]).map((mode) => (
+                            <button
+                                key={mode}
+                                onClick={() => setViewMode(mode)}
+                                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode
+                                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                    }`}
+                            >
+                                {mode === "all"
+                                    ? `All (${transactions.length})`
+                                    : mode === "income"
+                                        ? `Income (${transactions.filter((t) => t.type === "income").length})`
+                                        : `Exp (${transactions.filter((t) => t.type === "expense").length})`}
+                            </button>
+                        ))}
                     </div>
 
                     <button
@@ -213,51 +214,46 @@ export default function TransactionsPage() {
                             : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600"
                             }`}
                     >
-                        Custom category ({customCategories.length}/3)
+                        Categories ({customCategories.length}/3)
                     </button>
                 </div>
 
-                <select
-                    value={`${sortField}-${sortDir}`}
-                    onChange={(e) => {
-                        const [field, dir] = e.target.value.split("-") as [
-                            SortField,
-                            SortDir,
-                        ];
-                        setSortField(field);
-                        setSortDir(dir);
-                    }}
-                    className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                >
-                    <option value="date-desc">Date (newest)</option>
-                    <option value="date-asc">Date (oldest)</option>
-                    <option value="amount-desc">Amount (highest)</option>
-                    <option value="amount-asc">Amount (lowest)</option>
-                    <option value="description-asc">Description (A-Z)</option>
-                    <option value="description-desc">Description (Z-A)</option>
-                </select>
+                <div className="flex flex-wrap items-center gap-2">
+                    <select
+                        value={`${sortField}-${sortDir}`}
+                        onChange={(e) => {
+                            const [field, dir] = e.target.value.split("-") as [SortField, SortDir];
+                            setSortField(field);
+                            setSortDir(dir);
+                        }}
+                        className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                    >
+                        <option value="date-desc">Date (newest)</option>
+                        <option value="date-asc">Date (oldest)</option>
+                        <option value="amount-desc">Amount (high)</option>
+                        <option value="amount-asc">Amount (low)</option>
+                        <option value="description-asc">A–Z</option>
+                        <option value="description-desc">Z–A</option>
+                    </select>
 
-                <select
-                    value={filterSource ?? ""}
-                    onChange={(e) => setFilterSource(e.target.value || null)}
-                    className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                >
-                    <option value="">All sources</option>
-                    {[...new Set(transactions.map((t) => t.filename).filter(Boolean))].map(
-                        (name) => (
-                            <option key={name} value={name!}>
-                                {name}
-                            </option>
-                        )
-                    )}
-                </select>
+                    <select
+                        value={filterSource ?? ""}
+                        onChange={(e) => setFilterSource(e.target.value || null)}
+                        className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                    >
+                        <option value="">All sources</option>
+                        {[...new Set(transactions.map((t) => t.filename).filter(Boolean))].map((name) => (
+                            <option key={name} value={name!}>{name}</option>
+                        ))}
+                    </select>
 
-                <a
-                    href="/api/export/transactions"
-                    className="rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                >
-                    Export CSV
-                </a>
+                    <a
+                        href="/api/export/transactions"
+                        className="rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    >
+                        Export
+                    </a>
+                </div>
             </div>
 
             {/* Custom category manager (inline expand) */}
@@ -323,7 +319,7 @@ export default function TransactionsPage() {
             {/* Transactions table — fixed layout */}
             <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                 <div className="overflow-x-auto">
-                    <table className="w-full table-fixed text-sm">
+                    <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-400">
                                 <th
@@ -334,19 +330,18 @@ export default function TransactionsPage() {
                                     {sortField === "date" && (sortDir === "asc" ? "↑" : "↓")}
                                 </th>
                                 <th
-                                    className="w-[200px] cursor-pointer px-4 py-3 hover:text-zinc-700 dark:hover:text-zinc-200"
+                                    className="cursor-pointer px-4 py-3 hover:text-zinc-700 dark:hover:text-zinc-200"
                                     onClick={() => handleSort("description")}
                                 >
                                     Description{" "}
-                                    {sortField === "description" &&
-                                        (sortDir === "asc" ? "↑" : "↓")}
+                                    {sortField === "description" && (sortDir === "asc" ? "↑" : "↓")}
                                 </th>
-                                <th className="w-[110px] px-4 py-3">Source</th>
-                                <th className="w-[150px] px-4 py-3">Financial Category</th>
-                                <th className="w-[80px] px-4 py-3">Type</th>
-                                <th className="w-[120px] px-4 py-3">Document</th>
+                                <th className="hidden px-4 py-3 sm:table-cell">Source</th>
+                                <th className="hidden px-4 py-3 sm:table-cell">Category</th>
+                                <th className="hidden px-4 py-3 md:table-cell">Type</th>
+                                <th className="hidden px-4 py-3 lg:table-cell">Document</th>
                                 <th
-                                    className="w-[110px] cursor-pointer px-4 py-3 text-right hover:text-zinc-700 dark:hover:text-zinc-200"
+                                    className="cursor-pointer px-4 py-3 text-right hover:text-zinc-700 dark:hover:text-zinc-200"
                                     onClick={() => handleSort("amount")}
                                 >
                                     Amount{" "}
@@ -373,7 +368,7 @@ export default function TransactionsPage() {
                                             )}
                                         </span>
                                     </td>
-                                    <td className="truncate px-4 py-3">
+                                    <td className="hidden truncate px-4 py-3 sm:table-cell">
                                         {t.sourceCategory ? (
                                             <span className="inline-flex rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                                                 {t.sourceCategory}
@@ -382,41 +377,27 @@ export default function TransactionsPage() {
                                             <span className="text-xs text-zinc-400">—</span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="hidden px-4 py-3 sm:table-cell">
                                         <select
                                             value={t.financialCategory ?? "other"}
-                                            onChange={(e) =>
-                                                handleCategoryChange(t.id, e.target.value)
-                                            }
+                                            onChange={(e) => handleCategoryChange(t.id, e.target.value)}
                                             className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                                         >
                                             {allCategories.map((cat) => (
-                                                <option key={cat} value={cat}>
-                                                    {cat}
-                                                </option>
+                                                <option key={cat} value={cat}>{cat}</option>
                                             ))}
                                         </select>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span
-                                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${t.type === "income"
-                                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                                : t.type === "expense"
-                                                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                                    : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                                }`}
-                                        >
+                                    <td className="hidden px-4 py-3 md:table-cell">
+                                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${t.type === "income" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : t.type === "expense" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"}`}>
                                             {t.type}
                                         </span>
                                     </td>
-                                    <td className="truncate px-4 py-3">
+                                    <td className="hidden truncate px-4 py-3 lg:table-cell">
                                         {t.filename ? (
                                             <button
                                                 onClick={() => setFilterSource(filterSource === t.filename ? null : t.filename)}
-                                                className={`inline-flex max-w-[110px] truncate rounded px-1.5 py-0.5 text-xs transition-colors ${filterSource === t.filename
-                                                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                                                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                                                    }`}
+                                                className={`inline-flex max-w-[110px] truncate rounded px-1.5 py-0.5 text-xs transition-colors ${filterSource === t.filename ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"}`}
                                                 title={t.filename}
                                             >
                                                 {t.filename}

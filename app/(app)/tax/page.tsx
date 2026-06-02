@@ -39,7 +39,7 @@ export default function TaxPage() {
 
     return (
         <div className="mx-auto max-w-3xl space-y-8">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         Tax Summary
@@ -48,7 +48,7 @@ export default function TaxPage() {
                         Fiscal year {data.fiscalYear} · deductible expenses overview
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <select
                         value={selectedFY}
                         onChange={(e) => handleFYChange(e.target.value)}

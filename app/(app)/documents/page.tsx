@@ -417,7 +417,7 @@ export default function DocumentsPage() {
                 <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                     <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
                         {filteredFiles.map((file) => (
-                            <div key={file.id} className="flex items-center justify-between px-5 py-4">
+                            <div key={file.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex items-center gap-4">
                                     <FileTypeIcon type={file.fileType} />
                                     <div>
@@ -430,7 +430,7 @@ export default function DocumentsPage() {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     {file.processingStatus === "completed" ? (
                                         <a
                                             href={`/transactions?fileId=${file.id}`}

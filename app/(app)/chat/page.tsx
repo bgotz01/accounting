@@ -177,8 +177,8 @@ export default function ChatPage() {
                             key={tab.id}
                             onClick={() => setActiveTabId(tab.id)}
                             className={`group flex min-w-0 max-w-[180px] items-center gap-1.5 rounded-t-lg border border-b-0 px-3 py-2 text-xs font-medium transition-colors ${tab.id === activeTabId
-                                    ? "border-zinc-200 bg-white text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                                    : "border-transparent text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                                ? "border-zinc-200 bg-white text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                                : "border-transparent text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
                                 }`}
                         >
                             <span className="truncate">{tab.title}</span>
@@ -211,7 +211,7 @@ export default function ChatPage() {
 
             {/* Chat area */}
             <div className="flex flex-1 flex-col overflow-hidden rounded-b-xl border border-t-0 border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/30">
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                     {activeTab.messages.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center">
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
@@ -255,8 +255,8 @@ export default function ChatPage() {
                                 >
                                     <div
                                         className={`max-w-[80%] rounded-lg px-4 py-2.5 text-sm ${msg.role === "user"
-                                                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                                                : "bg-zinc-50 text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
+                                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                                            : "bg-zinc-50 text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
                                             }`}
                                     >
                                         <div className="whitespace-pre-wrap">

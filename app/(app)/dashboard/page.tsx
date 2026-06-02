@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
     return (
         <div className="mx-auto max-w-5xl space-y-8">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         Dashboard
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
                 </div>
                 <Link
                     href="/profile"
-                    className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    className="self-start rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 sm:self-auto dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
                 >
                     {businessProfile ? "Edit profile" : "Set up profile"}
                 </Link>

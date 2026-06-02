@@ -96,7 +96,7 @@ export default function LedgerPage() {
     return (
         <div className="mx-auto max-w-6xl space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         General Ledger
@@ -155,7 +155,7 @@ export default function LedgerPage() {
                 </div>
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex flex-col gap-6 md:flex-row">
                 {/* Chart of Accounts */}
                 <div className="flex-1 min-w-0">
                     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -259,7 +259,7 @@ export default function LedgerPage() {
 
                 {/* Account drill-down panel */}
                 {selectedAccount && (
-                    <div className="w-[420px] shrink-0">
+                    <div className="w-full md:w-[420px] md:shrink-0">
                         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                             <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
                                 <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">

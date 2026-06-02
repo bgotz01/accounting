@@ -70,14 +70,14 @@ export default function InvoicesPage() {
 
     return (
         <div className="mx-auto max-w-5xl space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Invoices</h1>
                     <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Track bills and payments</p>
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${showForm ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200" : "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"}`}
+                    className={`self-start rounded-lg px-4 py-2 text-sm font-medium transition-colors sm:self-auto ${showForm ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200" : "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"}`}
                 >
                     {showForm ? "Cancel" : "Add invoice"}
                 </button>
@@ -187,65 +187,67 @@ export default function InvoicesPage() {
                 </div>
             ) : (
                 <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-400">
-                                <th className="px-5 py-3">Vendor</th>
-                                <th className="px-4 py-3">Invoice #</th>
-                                <th className="px-4 py-3">Issue Date</th>
-                                <th className="px-4 py-3">Due Date</th>
-                                <th className="px-4 py-3">Category</th>
-                                <th className="px-4 py-3">Status</th>
-                                <th className="px-4 py-3 text-right">Amount</th>
-                                <th className="px-4 py-3" />
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                            {filtered.map((inv) => (
-                                <tr key={inv.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
-                                    <td className="px-5 py-3">
-                                        <p className="font-medium text-zinc-900 dark:text-zinc-100">{inv.vendor}</p>
-                                        {inv.notes && <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[160px]">{inv.notes}</p>}
-                                    </td>
-                                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400">
-                                        {inv.invoiceNumber ?? <span className="text-zinc-300 dark:text-zinc-600">—</span>}
-                                    </td>
-                                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{inv.issueDate}</td>
-                                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                                        {inv.dueDate ?? <span className="text-zinc-300 dark:text-zinc-600">—</span>}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="inline-flex rounded bg-zinc-100 px-1.5 py-0.5 text-xs capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                                            {inv.category}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <button
-                                            onClick={() => handleStatusToggle(inv.id, inv.status)}
-                                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium transition-opacity hover:opacity-70 ${STATUS_STYLES[inv.status] ?? STATUS_STYLES.unpaid}`}
-                                            title="Click to toggle paid/unpaid"
-                                        >
-                                            {inv.status}
-                                        </button>
-                                        {inv.paidDate && (
-                                            <p className="mt-0.5 text-[10px] text-zinc-400">{inv.paidDate}</p>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
-                                        {fmt(inv.amount)}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <button
-                                            onClick={() => handleDelete(inv.id)}
-                                            className="text-xs text-zinc-400 hover:text-red-500 dark:hover:text-red-400"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-400">
+                                    <th className="px-5 py-3">Vendor</th>
+                                    <th className="px-4 py-3">Invoice #</th>
+                                    <th className="px-4 py-3">Issue Date</th>
+                                    <th className="px-4 py-3">Due Date</th>
+                                    <th className="px-4 py-3">Category</th>
+                                    <th className="px-4 py-3">Status</th>
+                                    <th className="px-4 py-3 text-right">Amount</th>
+                                    <th className="px-4 py-3" />
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                {filtered.map((inv) => (
+                                    <tr key={inv.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
+                                        <td className="px-5 py-3">
+                                            <p className="font-medium text-zinc-900 dark:text-zinc-100">{inv.vendor}</p>
+                                            {inv.notes && <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[160px]">{inv.notes}</p>}
+                                        </td>
+                                        <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400">
+                                            {inv.invoiceNumber ?? <span className="text-zinc-300 dark:text-zinc-600">—</span>}
+                                        </td>
+                                        <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{inv.issueDate}</td>
+                                        <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                                            {inv.dueDate ?? <span className="text-zinc-300 dark:text-zinc-600">—</span>}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className="inline-flex rounded bg-zinc-100 px-1.5 py-0.5 text-xs capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                                                {inv.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <button
+                                                onClick={() => handleStatusToggle(inv.id, inv.status)}
+                                                className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium transition-opacity hover:opacity-70 ${STATUS_STYLES[inv.status] ?? STATUS_STYLES.unpaid}`}
+                                                title="Click to toggle paid/unpaid"
+                                            >
+                                                {inv.status}
+                                            </button>
+                                            {inv.paidDate && (
+                                                <p className="mt-0.5 text-[10px] text-zinc-400">{inv.paidDate}</p>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-right font-medium text-zinc-900 dark:text-zinc-100">
+                                            {fmt(inv.amount)}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <button
+                                                onClick={() => handleDelete(inv.id)}
+                                                className="text-xs text-zinc-400 hover:text-red-500 dark:hover:text-red-400"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>

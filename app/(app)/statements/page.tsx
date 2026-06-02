@@ -61,7 +61,7 @@ export default function StatementsPage() {
     return (
         <div className="mx-auto max-w-full space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                         Financial Statements
@@ -73,7 +73,7 @@ export default function StatementsPage() {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     {/* Period grouping — only for income/cashflow */}
                     {tab !== "balance" && (
                         <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
@@ -121,12 +121,12 @@ export default function StatementsPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 w-fit dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="flex gap-0.5 rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
                 {TABS.map((t) => (
                     <button
                         key={t.id}
                         onClick={() => setTab(t.id)}
-                        className={`rounded-md px-4 py-1.5 text-xs font-medium transition-colors ${tab === t.id
+                        className={`flex-1 rounded-md px-4 py-1.5 text-xs font-medium transition-colors sm:flex-none ${tab === t.id
                             ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
                             : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                             }`}
