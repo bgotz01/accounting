@@ -163,16 +163,29 @@ export default function DocumentsPage() {
     }, []);
 
     const handlePreview = useCallback(async (fileId: string, fileType: string) => {
-        if (fileType === "pdf") {
-            const dlResult = await getFileDownloadUrl(fileId);
-            if (dlResult.url) {
-                setPreview({ filename: dlResult.filename!, url: dlResult.url, fileType: "pdf" });
+        setPreviewError(null);
+        try {
+            if (fileType === "pdf") {
+                const dlResult = await getFileDownloadUrl(fileId);
+                if (dlResult.url) {
+                    setPreview({ filename: dlResult.filename!, url: dlResult.url, fileType: "pdf" });
+                } else {
+                    setPreviewError((dlResult as any).error ?? "Could not generate preview URL.");
+                }
+                return;
             }
-            return;
-        }
-        const result = await getFilePreviewContent(fileId);
-        if (result.content) {
-            setPreview({ filename: result.filename!, content: result.content, totalLines: result.totalLines, fileType });
+            if (fileType === "csv" || fileType === "xlsx") {
+                const result = await getFilePreviewContent(fileId);
+                if (result.content) {
+                    setPreview({ filename: result.filename!, content: result.content, totalLines: result.totalLines, fileType });
+                } else {
+                    setPreviewError((result as any).error ?? "Could not load preview.");
+                }
+                return;
+            }
+            setPreviewError("Preview not available for this file type.");
+        } catch (e: any) {
+            setPreviewError(e?.message ?? "An unexpected error occurred.");
         }
     }, []);
 
@@ -336,6 +349,13 @@ export default function DocumentsPage() {
                             </button>
                         </div>
                     </form>
+                </div>
+            )}
+
+            {/* Preview error */}
+            {previewError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
+                    Preview failed: {previewError}
                 </div>
             )}
 

@@ -46,11 +46,15 @@ export async function GET(
         const ext = path.extname(filePath).toLowerCase();
         const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
 
+        // Use RFC 5987 encoding for filenames that contain non-ASCII characters
+        // (e.g. Arabic, CJK) so browsers handle them correctly.
+        const encodedFilename = encodeURIComponent(fileRecord.filename);
+        const contentDisposition = `inline; filename*=UTF-8''${encodedFilename}`;
+
         return new NextResponse(buffer, {
             headers: {
                 "Content-Type": contentType,
-                // "inline" tells the browser to render PDFs in-place rather than download
-                "Content-Disposition": `inline; filename="${fileRecord.filename}"`,
+                "Content-Disposition": contentDisposition,
                 "Cache-Control": "private, max-age=300",
             },
         });

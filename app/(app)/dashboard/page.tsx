@@ -55,13 +55,11 @@ export default async function DashboardPage() {
                         <MetricCard
                             label="Revenue"
                             value={fmt(data.totalIncome)}
-                            change={data.incomeChange}
                             type="income"
                         />
                         <MetricCard
                             label="Expenses"
                             value={fmt(data.totalExpenses)}
-                            change={data.expenseChange}
                             type="expense"
                         />
                         <MetricCard

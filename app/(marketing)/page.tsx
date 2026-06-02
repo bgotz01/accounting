@@ -1,4 +1,15 @@
-export default function Home() {
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero Section */}

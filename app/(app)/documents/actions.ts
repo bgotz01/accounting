@@ -68,9 +68,9 @@ export async function getFilePreviewContent(fileId: string) {
         return { error: "File not found" };
     }
 
-    // Only preview CSV files as text
-    if (file.fileType !== "csv") {
-        return { error: "Preview only available for CSV files", fileType: file.fileType };
+    // Only preview CSV and XLSX files as text
+    if (file.fileType !== "csv" && file.fileType !== "xlsx") {
+        return { error: "Preview only available for CSV and XLSX files", fileType: file.fileType };
     }
 
     const { data, error } = await downloadFromStorage(file.storagePath);
@@ -79,7 +79,20 @@ export async function getFilePreviewContent(fileId: string) {
         return { error: "Failed to download file for preview" };
     }
 
-    const text = data.toString("utf-8");
-    const lines = text.split("\n").slice(0, 50);
-    return { content: lines.join("\n"), totalLines: text.split("\n").length, filename: file.filename };
+    if (file.fileType === "csv") {
+        const text = data.toString("utf-8");
+        const lines = text.split("\n").slice(0, 50);
+        return { content: lines.join("\n"), totalLines: text.split("\n").length, filename: file.filename };
+    }
+
+    // XLSX: parse and render as plain text table
+    const XLSX = await import("xlsx");
+    const workbook = XLSX.read(data, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+    const preview = rows.slice(0, 50).map((row) =>
+        row.map((cell) => String(cell).padEnd(20)).join(" | ")
+    );
+    return { content: preview.join("\n"), totalLines: rows.length, filename: file.filename };
 }
