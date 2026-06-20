@@ -1,8 +1,7 @@
 import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPEN_AI_API });
+import { streamText } from "ai";
+import { getModel, resolveApiKey } from "@/app/lib/ai-client";
 
 export async function POST(request: Request) {
     const supabase = await createClient();
@@ -18,6 +17,19 @@ export async function POST(request: Request) {
         messages: { role: "user" | "assistant"; content: string }[];
         page?: string;
     };
+
+    // Resolve the user's API key (personal key takes priority over env)
+    const userRecord = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { aiApiKey: true },
+    });
+    let model;
+    try {
+        const apiKey = resolveApiKey(userRecord?.aiApiKey);
+        model = getModel(apiKey, "standard");
+    } catch {
+        return new Response("No API key configured.", { status: 400 });
+    }
 
     // Always fetch transaction summary (core financial data)
     const transactions = await prisma.transaction.findMany({
@@ -228,33 +240,13 @@ Guidelines:
 - Provide actionable recommendations when appropriate
 - Format responses with markdown for readability`;
 
-    const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+    const result = streamText({
+        model,
         messages: [
             { role: "system", content: systemPrompt },
             ...messages,
         ],
-        stream: true,
     });
 
-    // Return a streaming response
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
-        async start(controller) {
-            for await (const chunk of stream) {
-                const content = chunk.choices[0]?.delta?.content;
-                if (content) {
-                    controller.enqueue(encoder.encode(content));
-                }
-            }
-            controller.close();
-        },
-    });
-
-    return new Response(readable, {
-        headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Transfer-Encoding": "chunked",
-        },
-    });
+    return result.toTextStreamResponse();
 }

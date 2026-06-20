@@ -14,6 +14,8 @@ model User {
   name             String?
   avatarUrl        String?  @map("avatar_url")
   customCategories String[] @default([]) @map("custom_categories")
+  aiApiKey         String?  @map("ai_api_key")
+  freeAiCredits    Int      @default(10) @map("free_ai_credits")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

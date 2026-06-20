@@ -1,8 +1,6 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-    apiKey: process.env.OPEN_AI_API,
-});
+import { generateObject } from "ai";
+import { z } from "zod";
+import { getModel, resolveApiKey } from "@/app/lib/ai-client";
 
 export type FileCategory =
     | "bank_statements"
@@ -15,30 +13,36 @@ export type FileCategory =
 
 export type ClassificationResult = {
     category: FileCategory;
-    confidence: number; // 0.0 – 1.0
+    confidence: number;
     reason: string;
 };
 
-const VALID_CATEGORIES: FileCategory[] = [
-    "bank_statements",
-    "invoices",
-    "receipts",
-    "tax_documents",
-    "payroll",
-    "ads_reports",
-    "other",
-];
+const ClassificationSchema = z.object({
+    category: z.enum([
+        "bank_statements",
+        "invoices",
+        "receipts",
+        "tax_documents",
+        "payroll",
+        "ads_reports",
+        "other",
+    ]),
+    confidence: z.number().min(0).max(1),
+    reason: z.string(),
+});
 
 /**
- * Uses GPT to classify a file into one of the known document categories.
- *
- * @param filename  The original filename (e.g. "ecommerce_bank_transactions_6mo.csv")
- * @param sample    Up to ~500 chars of raw text content from the file (headers + first few rows)
+ * Uses AI to classify a file into one of the known document categories.
+ * Supports both OpenAI and Anthropic keys.
  */
 export async function classifyFile(
     filename: string,
-    sample: string
+    sample: string,
+    userApiKey?: string | null
 ): Promise<ClassificationResult> {
+    const apiKey = resolveApiKey(userApiKey);
+    const model = getModel(apiKey, "standard");
+
     const prompt = `You are a financial document classifier. Given a filename and a short sample of its content, determine which category best describes the document.
 
 Valid categories:
@@ -53,39 +57,14 @@ Valid categories:
 Filename: ${filename}
 
 Content sample:
-${sample}
+${sample}`;
 
-Respond with a JSON object only, no markdown:
-{
-  "category": "<one of the valid categories>",
-  "confidence": <0.0 to 1.0>,
-  "reason": "<one short sentence explaining why>"
-}`;
-
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
+    const { object } = await generateObject({
+        model,
+        schema: ClassificationSchema,
+        prompt,
         temperature: 0,
-        max_tokens: 150,
-        response_format: { type: "json_object" },
     });
 
-    const raw = response.choices[0]?.message?.content ?? "{}";
-
-    let parsed: { category?: string; confidence?: number; reason?: string };
-    try {
-        parsed = JSON.parse(raw);
-    } catch {
-        return { category: "other", confidence: 0, reason: "Could not parse AI response." };
-    }
-
-    const category = VALID_CATEGORIES.includes(parsed.category as FileCategory)
-        ? (parsed.category as FileCategory)
-        : "other";
-
-    return {
-        category,
-        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.5,
-        reason: parsed.reason ?? "",
-    };
+    return object;
 }

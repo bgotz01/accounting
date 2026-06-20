@@ -3,9 +3,9 @@
 import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
 import { redirect } from "next/navigation";
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPEN_AI_API });
+import { generateObject } from "ai";
+import { z } from "zod";
+import { getModel, resolveApiKey, consumeAiCredit } from "@/app/lib/ai-client";
 
 export type AiInsight = {
     id: string;
@@ -15,6 +15,17 @@ export type AiInsight = {
     severity: string;
     createdAt: string;
 };
+
+const InsightsSchema = z.object({
+    insights: z.array(
+        z.object({
+            type: z.enum(["trend", "warning", "opportunity", "anomaly", "benchmark"]),
+            title: z.string(),
+            content: z.string(),
+            severity: z.enum(["info", "warning", "success"]),
+        })
+    ).length(5),
+});
 
 export async function getInsights(): Promise<AiInsight[]> {
     const supabase = await createClient();
@@ -42,19 +53,29 @@ export async function generateInsights(): Promise<{ insights: AiInsight[]; error
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) redirect("/login");
 
-    const transactions = await prisma.transaction.findMany({
-        where: { userId: user.id },
-        orderBy: { date: "desc" },
-    });
+    const [transactions, userRecord, profile] = await Promise.all([
+        prisma.transaction.findMany({ where: { userId: user.id }, orderBy: { date: "desc" } }),
+        prisma.user.findUnique({ where: { id: user.id }, select: { aiApiKey: true } }),
+        prisma.businessProfile.findUnique({ where: { userId: user.id } }),
+    ]);
 
     if (transactions.length === 0) {
         return { insights: [], error: "No transaction data to analyse." };
     }
 
+    const apiKey = resolveApiKey(userRecord?.aiApiKey);
+    const model = getModel(apiKey, "standard");
+
+    try {
+        await consumeAiCredit(user.id, userRecord?.aiApiKey);
+    } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return { insights: [], error: msg.replace("FREE_TIER_EXHAUSTED: ", "") };
+    }
+
     const totalIncome = transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
     const totalExpenses = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
 
-    // Monthly breakdown
     const monthMap = new Map<string, { income: number; expenses: number }>();
     for (const t of transactions) {
         const key = `${t.date.getFullYear()}-${String(t.date.getMonth() + 1).padStart(2, "0")}`;
@@ -66,15 +87,12 @@ export async function generateInsights(): Promise<{ insights: AiInsight[]; error
     const monthly = [...monthMap.entries()].sort(([a], [b]) => a.localeCompare(b))
         .map(([period, d]) => ({ period, ...d, net: d.income - d.expenses }));
 
-    // Category breakdown
     const catMap = new Map<string, number>();
     transactions.filter((t) => t.type === "expense").forEach((t) => {
         const cat = t.financialCategory ?? "other";
         catMap.set(cat, (catMap.get(cat) ?? 0) + Number(t.amount));
     });
     const categories = [...catMap.entries()].sort((a, b) => b[1] - a[1]);
-
-    const profile = await prisma.businessProfile.findUnique({ where: { userId: user.id } });
 
     const prompt = `You are a financial analyst reviewing a small business's accounting data. Generate exactly 5 specific, actionable insights based on this data.
 
@@ -90,38 +108,25 @@ Monthly Trends (chronological):
 ${JSON.stringify(monthly, null, 2)}
 
 Expense Categories:
-${categories.map(([cat, amt]) => `  ${cat}: ${amt.toFixed(2)}`).join("\n")}
-
-Return a JSON array of exactly 5 insights. Each insight must have:
-- type: one of "trend", "warning", "opportunity", "anomaly", "benchmark"
-- title: short title (max 8 words)
-- content: 1-2 sentence actionable insight
-- severity: one of "info", "warning", "success"
-
-Return ONLY valid JSON, no markdown, no explanation.`;
+${categories.map(([cat, amt]) => `  ${cat}: ${amt.toFixed(2)}`).join("\n")}`;
 
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [{ role: "user", content: prompt }],
+        const { object } = await generateObject<z.infer<typeof InsightsSchema>>({
+            model,
+            schema: InsightsSchema,
+            prompt,
             temperature: 0.3,
         });
 
-        const raw = response.choices[0]?.message?.content ?? "[]";
-        const parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, "").trim()) as {
-            type: string; title: string; content: string; severity: string;
-        }[];
-
-        // Delete old insights and save new ones
         await prisma.aiInsight.deleteMany({ where: { userId: user.id } });
 
         const created = await prisma.aiInsight.createManyAndReturn({
-            data: parsed.map((ins) => ({
+            data: object.insights.map((ins) => ({
                 userId: user.id,
-                type: ins.type ?? "info",
-                title: ins.title ?? "Insight",
-                content: ins.content ?? "",
-                severity: ins.severity ?? "info",
+                type: ins.type,
+                title: ins.title,
+                content: ins.content,
+                severity: ins.severity,
             })),
         });
 

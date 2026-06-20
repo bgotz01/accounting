@@ -4,6 +4,7 @@ import { parseFile } from "./parse-file";
 import { canDirectImport, directImport } from "./direct-import";
 import { extractTransactions } from "./extract-transactions";
 import { extractFromPdf } from "./parse-pdf";
+import { consumeAiCredit } from "@/app/lib/ai-client";
 
 /**
  * Full processing pipeline for an uploaded file:
@@ -18,6 +19,13 @@ export async function processFile(fileId: string) {
     if (!file) {
         throw new Error(`File not found: ${fileId}`);
     }
+
+    // Look up the user's personal API key (falls back to env in the processing functions)
+    const userRecord = await prisma.user.findUnique({
+        where: { id: file.userId },
+        select: { aiApiKey: true },
+    });
+    const userApiKey = userRecord?.aiApiKey ?? null;
 
     await prisma.file.update({
         where: { id: fileId },
@@ -38,7 +46,8 @@ export async function processFile(fileId: string) {
 
         // PDF processing path — send directly to GPT-4o vision
         if (file.fileType === "pdf") {
-            const extracted = await extractFromPdf(buffer, file.category);
+            await consumeAiCredit(file.userId, userApiKey);
+            const extracted = await extractFromPdf(buffer, file.category, userApiKey);
 
             if (extracted.length > 0) {
                 const transactions = extracted.map((t) => ({
@@ -135,7 +144,8 @@ export async function processFile(fileId: string) {
 
         // Fallback: GPT extraction for unstructured/ambiguous data
         console.log(`[process] Using AI extraction (${rows.length} rows)...`);
-        const extracted = await extractTransactions(rows, headers);
+        await consumeAiCredit(file.userId, userApiKey);
+        const extracted = await extractTransactions(rows, headers, userApiKey);
 
         if (extracted.length === 0) {
             await prisma.file.update({

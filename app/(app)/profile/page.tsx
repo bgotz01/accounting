@@ -1,8 +1,13 @@
 import { getBusinessProfile } from "@/app/(app)/dashboard/business-profile-actions";
 import { BusinessProfileForm } from "@/app/(app)/dashboard/business-profile-form";
+import { getApiKeyStatus } from "./api-key-actions";
+import { ApiKeyForm } from "./api-key-form";
 
 export default async function SettingsPage() {
-    const businessProfile = await getBusinessProfile();
+    const [businessProfile, apiKeyStatus] = await Promise.all([
+        getBusinessProfile(),
+        getApiKeyStatus(),
+    ]);
 
     return (
         <div className="mx-auto max-w-2xl space-y-8">
@@ -16,6 +21,12 @@ export default async function SettingsPage() {
             </div>
 
             <BusinessProfileForm initialProfile={businessProfile} />
+
+            <ApiKeyForm
+                initialHasKey={apiKeyStatus.hasKey}
+                initialProvider={apiKeyStatus.provider}
+                freeCredits={apiKeyStatus.freeCredits}
+            />
         </div>
     );
 }

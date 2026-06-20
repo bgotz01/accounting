@@ -1,8 +1,6 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-    apiKey: process.env.OPEN_AI_API,
-});
+import { generateObject } from "ai";
+import { z } from "zod";
+import { getModel, resolveApiKey } from "@/app/lib/ai-client";
 
 export type ExtractedTransaction = {
     date: string;
@@ -16,6 +14,23 @@ export type ExtractedTransaction = {
     confidenceScore: number;
     notes: string | null;
 };
+
+const TransactionSchema = z.object({
+    transactions: z.array(
+        z.object({
+            date: z.string(),
+            description: z.string(),
+            counterparty: z.string().nullable(),
+            amount: z.number(),
+            currency: z.string().default("USD"),
+            sourceCategory: z.string().nullable(),
+            financialCategory: z.string(),
+            type: z.enum(["income", "expense", "transfer"]),
+            confidenceScore: z.number().min(0).max(1),
+            notes: z.string().nullable(),
+        })
+    ),
+});
 
 const SYSTEM_PROMPT = `You are a financial data extraction assistant. You will receive raw text extracted from a PDF financial document (bank statement, invoice, receipt, etc.).
 
@@ -37,19 +52,22 @@ Rules:
 - Credits/deposits/payments received = income
 - Debits/charges/payments made = expense
 - Skip totals, subtotals, balance lines, headers, and non-transaction text
-- If the document is an invoice, the total is one transaction
-- Return {"transactions": [...]} as valid JSON`;
+- If the document is an invoice, the total is one transaction`;
 
 /**
- * Extract transactions from raw PDF text using GPT.
+ * Extract transactions from raw PDF text using AI.
  * Splits into chunks if the text is very long.
+ * Supports both OpenAI and Anthropic keys.
  */
 export async function extractFromText(
-    text: string
+    text: string,
+    userApiKey?: string | null
 ): Promise<ExtractedTransaction[]> {
     if (!text.trim()) return [];
 
-    // Split into chunks of ~4000 chars to stay within token limits
+    const apiKey = resolveApiKey(userApiKey);
+    const model = getModel(apiKey, "standard");
+
     const CHUNK_SIZE = 4000;
     const chunks: string[] = [];
 
@@ -65,42 +83,17 @@ export async function extractFromText(
         console.log(`[pdf-extract] Chunk ${i + 1}/${chunks.length}...`);
         const start = Date.now();
 
-        const response = await openai.chat.completions.create(
-            {
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
-                    {
-                        role: "user",
-                        content: `Extract transactions from this PDF text:\n\n${chunks[i]}`,
-                    },
-                ],
-                response_format: { type: "json_object" },
-                temperature: 0.1,
-            },
-            { timeout: 60000 }
-        );
+        const { object } = await generateObject({
+            model,
+            schema: TransactionSchema,
+            prompt: `${SYSTEM_PROMPT}\n\nExtract transactions from this PDF text:\n\n${chunks[i]}`,
+            temperature: 0.1,
+        });
 
-        const content = response.choices[0]?.message?.content;
-        if (!content) continue;
-
-        try {
-            const parsed = JSON.parse(content);
-            const transactions: ExtractedTransaction[] = Array.isArray(parsed)
-                ? parsed
-                : parsed.transactions ?? [];
-            allTransactions.push(...transactions);
-        } catch (e) {
-            console.error(`[pdf-extract] Failed to parse chunk ${i + 1}:`, e);
-        }
-
-        console.log(
-            `[pdf-extract] Chunk ${i + 1} done in ${((Date.now() - start) / 1000).toFixed(1)}s`
-        );
+        allTransactions.push(...object.transactions);
+        console.log(`[pdf-extract] Chunk ${i + 1} done in ${((Date.now() - start) / 1000).toFixed(1)}s`);
     }
 
-    console.log(
-        `[pdf-extract] Complete: ${allTransactions.length} transactions extracted`
-    );
+    console.log(`[pdf-extract] Complete: ${allTransactions.length} transactions extracted`);
     return allTransactions;
 }

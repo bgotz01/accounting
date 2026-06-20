@@ -145,8 +145,14 @@ export async function suggestFileCategory(
 
     if (!user) return null;
 
+    const userRecord = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { aiApiKey: true },
+    });
+    const userApiKey = userRecord?.aiApiKey ?? null;
+
     try {
-        return await classifyFile(filename, sample);
+        return await classifyFile(filename, sample, userApiKey);
     } catch (err) {
         console.error("Category suggestion failed:", err);
         return null;
