@@ -2,10 +2,17 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    user = authUser;
+  } catch (error) {
+    console.warn("Supabase auth unavailable, rendering marketing page anyway:", error);
+  }
 
   if (user) {
     redirect("/dashboard");
