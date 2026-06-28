@@ -33,8 +33,7 @@ export async function login(
     } catch (error) {
         console.error("Login failed because auth is unavailable:", error);
         return {
-            error:
-                "Authentication service is unavailable. Please try again later.",
+            error: "Authentication service is unavailable. Please try again later.",
         };
     }
 
@@ -63,38 +62,42 @@ export async function signup(
 
     try {
         const admin = createAdminClient();
-        const { data, error: listError } = await admin.auth.admin.listUsers();
 
-        if (listError) {
-            throw listError;
-        }
+        // Check for existing email without triggering a signup email
+        const { data, error: listError } = await admin.auth.admin.listUsers();
+        if (listError) throw listError;
 
         const existingEmail = data.users?.find(
-            (user) => user.email?.toLowerCase() === email.toLowerCase()
+            (u) => u.email?.toLowerCase() === email.toLowerCase()
         );
-
         if (existingEmail) {
             return { error: "That email is already in use." };
         }
 
-        const supabase = await createClient();
-        const { error } = await supabase.auth.signUp({
+        // Create user via admin API — bypasses confirmation email entirely
+        const { error: createError } = await admin.auth.admin.createUser({
             email,
             password,
+            email_confirm: true,
         });
-
-        if (error) {
-            return { error: error.message };
+        if (createError) {
+            return { error: createError.message };
         }
 
-        return { success: "Check your email for a confirmation link." };
+        // Sign the user in immediately
+        const supabase = await createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) {
+            return { error: signInError.message };
+        }
     } catch (error) {
         console.error("Signup failed because auth is unavailable:", error);
         return {
-            error:
-                "Authentication service is unavailable. Please try again later.",
+            error: "Authentication service is unavailable. Please try again later.",
         };
     }
+
+    redirect("/dashboard");
 }
 
 export async function logout() {
