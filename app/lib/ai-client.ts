@@ -53,8 +53,17 @@ export function getModel(apiKey: string, tier: ModelTier = "standard"): Language
 /**
  * Resolves the API key to use: user-supplied key takes priority over the env fallback.
  */
+function getFallbackApiKey(): string | null {
+    return (
+        process.env.API_KEY?.trim() ||
+        process.env.OPENAI_API_KEY?.trim() ||
+        process.env.ANTHROPIC_API_KEY?.trim() ||
+        null
+    );
+}
+
 export function resolveApiKey(userKey?: string | null): string {
-    const key = userKey?.trim() || process.env.API_KEY || "";
+    const key = userKey?.trim() || getFallbackApiKey() || "";
     if (!key) {
         throw new Error("No API key configured. Add your key in Profile → API Key.");
     }
@@ -65,7 +74,7 @@ export function resolveApiKey(userKey?: string | null): string {
  * Checks whether the env fallback key is being used (i.e. user has no own key).
  */
 export function isUsingEnvKey(userKey?: string | null): boolean {
-    return !userKey?.trim() && !!process.env.API_KEY;
+    return !userKey?.trim() && !!getFallbackApiKey();
 }
 
 /**
@@ -80,7 +89,7 @@ export async function consumeAiCredit(userId: string, userKey?: string | null): 
     if (userKey?.trim()) return;
 
     // No env key means AI won't work at all — resolveApiKey will throw later
-    if (!process.env.API_KEY) return;
+    if (!getFallbackApiKey()) return;
 
     // Atomically decrement, but only if credits remain
     const updated = await prisma.user.updateMany({

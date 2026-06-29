@@ -5,6 +5,7 @@ import { prisma } from "@/app/lib/prisma";
 import { uploadToStorage } from "@/app/lib/storage";
 import { redirect } from "next/navigation";
 import { classifyFile } from "@/app/lib/processing/classify-file";
+import { consumeAiCredit } from "@/app/lib/ai-client";
 
 const ALLOWED_TYPES = [
     "text/csv",
@@ -63,8 +64,28 @@ export async function uploadFile(
         };
     }
 
-    // Generate a unique storage path
-    const storagePath = `${user.id}/${category}/${Date.now()}-${file.name}`;
+    // Generate a unique storage path with a normalized filename and category to avoid invalid storage keys.
+    const categorySafe = (category?.trim() || "other")
+        .replace(/[\/\\]/g, "-")
+        .replace(/[:*?"<>|]+/g, "-")
+        .replace(/\s+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 100) || "other";
+
+    const rawFilename = path.basename(file.name);
+    let safeFilename = rawFilename
+        .normalize("NFC")
+        .replace(/[\/\\]/g, "-")
+        .replace(/[:*?"<>|]+/g, "-")
+        .replace(/\s+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 200);
+
+    if (!safeFilename) {
+        safeFilename = `file-${Date.now()}`;
+    }
+
+    const storagePath = `${user.id}/${categorySafe}/${Date.now()}-${safeFilename}`;
 
     // Upload to storage
     const { error: storageError } = await uploadToStorage(storagePath, file);
@@ -152,6 +173,7 @@ export async function suggestFileCategory(
     const userApiKey = userRecord?.aiApiKey ?? null;
 
     try {
+        await consumeAiCredit(user.id, userApiKey);
         return await classifyFile(filename, sample, userApiKey);
     } catch (err) {
         console.error("Category suggestion failed:", err);
