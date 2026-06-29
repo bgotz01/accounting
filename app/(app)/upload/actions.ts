@@ -6,6 +6,7 @@ import { uploadToStorage } from "@/app/lib/storage";
 import { redirect } from "next/navigation";
 import { classifyFile } from "@/app/lib/processing/classify-file";
 import { consumeAiCredit } from "@/app/lib/ai-client";
+import path from "node:path";
 
 const ALLOWED_TYPES = [
     "text/csv",
