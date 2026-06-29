@@ -39,6 +39,7 @@ model File {
   category         String   @default("other")
   period           String?
   processingStatus String   @default("pending") @map("processing_status")
+  processingError  String?  @map("processing_error")
   createdAt        DateTime @default(now()) @map("created_at")
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)

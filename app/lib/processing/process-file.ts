@@ -184,9 +184,14 @@ export async function processFile(fileId: string) {
     } catch (error) {
         console.error(`Processing failed for file ${fileId}:`, error);
 
+        const message = error instanceof Error ? error.message : String(error);
+
         await prisma.file.update({
             where: { id: fileId },
-            data: { processingStatus: "failed" },
+            data: {
+                processingStatus: "failed",
+                processingError: message,
+            },
         });
 
         throw error;

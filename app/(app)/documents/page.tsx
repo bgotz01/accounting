@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useActionState } from "react";
 import { getAllFiles, getFileDownloadUrl, getFilePreviewContent } from "./actions";
-import { uploadFile, deleteFile, suggestFileCategory } from "../upload/actions";
+import { uploadFile, deleteFile, suggestFileCategory, retryFileProcessing } from "../upload/actions";
 import { checkDuplicates, deleteDuplicateTransactions, type DuplicateGroup } from "../upload/duplicates";
 import { useCurrency } from "@/app/components/currency-context";
 
@@ -39,6 +39,7 @@ type FileRecord = {
     category: string;
     period: string | null;
     processingStatus: string;
+    processingError: string | null;
     createdAt: Date;
 };
 
@@ -162,6 +163,14 @@ export default function DocumentsPage() {
         checkDuplicates().then(setDuplicates);
     }, []);
 
+    const handleRetry = useCallback(async (fileId: string) => {
+        const result = await retryFileProcessing(fileId);
+        if (result.success) {
+            const updated = await getAllFiles();
+            setFiles(updated);
+        }
+    }, []);
+
     const handlePreview = useCallback(async (fileId: string, fileType: string) => {
         setPreviewError(null);
         try {
@@ -206,15 +215,27 @@ export default function DocumentsPage() {
                         Upload and manage your financial documents
                     </p>
                 </div>
-                <button
-                    onClick={() => setShowUpload(!showUpload)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${showUpload
-                        ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200"
-                        : "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                        }`}
-                >
-                    {showUpload ? "Cancel" : "Upload file"}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={async () => {
+                            const updated = await getAllFiles();
+                            setFiles(updated);
+                            checkDuplicates().then(setDuplicates);
+                        }}
+                        className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    >
+                        Refresh
+                    </button>
+                    <button
+                        onClick={() => setShowUpload(!showUpload)}
+                        className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${showUpload
+                            ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200"
+                            : "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                            }`}
+                    >
+                        {showUpload ? "Cancel" : "Upload file"}
+                    </button>
+                </div>
             </div>
 
             {/* Upload section */}
@@ -428,6 +449,11 @@ export default function DocumentsPage() {
                                             {" · "}
                                             {new Date(file.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                                         </p>
+                                        {file.processingStatus === "failed" && file.processingError && (
+                                            <p className="mt-1 max-w-xl text-xs text-red-600 dark:text-red-400">
+                                                {file.processingError}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
@@ -440,6 +466,14 @@ export default function DocumentsPage() {
                                         </a>
                                     ) : (
                                         <StatusBadge status={file.processingStatus} />
+                                    )}
+                                    {file.processingStatus === "failed" && (
+                                        <button
+                                            onClick={() => handleRetry(file.id)}
+                                            className="rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                        >
+                                            Retry
+                                        </button>
                                     )}
                                     <button
                                         onClick={() => handlePreview(file.id, file.fileType)}
