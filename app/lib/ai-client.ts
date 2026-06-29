@@ -97,7 +97,7 @@ async function getFallbackApiKey(): Promise<string | null> {
 export async function resolveApiKey(userKey?: string | null): Promise<string> {
     const key = userKey?.trim() || (await getFallbackApiKey()) || "";
     if (!key) {
-        throw new Error("No API key configured. Add your key in Profile → API Key or set a shared API key in Vercel / .env.");
+        throw new Error("No API key configured. Add your key in Profile → API Key.");
     }
     return key;
 }
@@ -144,7 +144,7 @@ export async function consumeUploadCredit(userId: string, userKey?: string | nul
     if (userKey?.trim()) return;
 
     if (!(await getFallbackApiKey())) {
-        throw new Error("No API key configured. Add your key in Profile → API Key or set a shared API key in Vercel / .env.");
+        throw new Error("No API key configured. Add your key in Profile → API Key.");
     }
 
     const updated = await prisma.user.updateMany({
