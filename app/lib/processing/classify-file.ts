@@ -40,7 +40,7 @@ export async function classifyFile(
     sample: string,
     userApiKey?: string | null
 ): Promise<ClassificationResult> {
-    const apiKey = resolveApiKey(userApiKey);
+    const apiKey = await resolveApiKey(userApiKey);
     const model = getModel(apiKey, "standard");
 
     const prompt = `You are a financial document classifier. Given a filename and a short sample of its content, determine which category best describes the document.

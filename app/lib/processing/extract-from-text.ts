@@ -65,7 +65,7 @@ export async function extractFromText(
 ): Promise<ExtractedTransaction[]> {
     if (!text.trim()) return [];
 
-    const apiKey = resolveApiKey(userApiKey);
+    const apiKey = await resolveApiKey(userApiKey);
     const model = getModel(apiKey, "standard");
 
     const CHUNK_SIZE = 4000;

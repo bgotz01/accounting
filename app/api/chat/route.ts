@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     });
     let model;
     try {
-        const apiKey = resolveApiKey(userRecord?.aiApiKey);
+        const apiKey = await resolveApiKey(userRecord?.aiApiKey);
         model = getModel(apiKey, "standard");
     } catch {
         return new Response("No API key configured.", { status: 400 });

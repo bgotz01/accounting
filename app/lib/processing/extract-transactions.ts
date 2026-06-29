@@ -66,7 +66,7 @@ export async function extractTransactions(
 ): Promise<ExtractedTransaction[]> {
     if (rows.length === 0) return [];
 
-    const apiKey = resolveApiKey(userApiKey);
+    const apiKey = await resolveApiKey(userApiKey);
     const model = getModel(apiKey, "standard");
 
     const BATCH_SIZE = 30;

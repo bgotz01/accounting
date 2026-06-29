@@ -64,7 +64,7 @@ export async function extractFromPdf(
     documentCategory?: string,
     userApiKey?: string | null
 ): Promise<ExtractedTransaction[]> {
-    const apiKey = resolveApiKey(userApiKey);
+    const apiKey = await resolveApiKey(userApiKey);
     const provider = detectProvider(apiKey);
     const base64 = buffer.toString("base64");
 

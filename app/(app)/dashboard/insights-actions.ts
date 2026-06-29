@@ -63,7 +63,7 @@ export async function generateInsights(): Promise<{ insights: AiInsight[]; error
         return { insights: [], error: "No transaction data to analyse." };
     }
 
-    const apiKey = resolveApiKey(userRecord?.aiApiKey);
+    const apiKey = await resolveApiKey(userRecord?.aiApiKey);
     const model = getModel(apiKey, "standard");
 
     try {
