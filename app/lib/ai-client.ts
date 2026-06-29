@@ -103,3 +103,26 @@ export async function consumeAiCredit(userId: string, userKey?: string | null): 
         );
     }
 }
+
+/**
+ * For free-tier users without a personal AI key, limit uploads to 10 documents.
+ */
+export async function consumeUploadCredit(userId: string, userKey?: string | null): Promise<void> {
+    // Users with their own key are never limited
+    if (userKey?.trim()) return;
+
+    if (!getFallbackApiKey()) {
+        throw new Error("No API key configured. Add your key in Profile → API Key or set a shared API key for the app.");
+    }
+
+    const updated = await prisma.user.updateMany({
+        where: { id: userId, freeAiCredits: { gt: 0 } },
+        data: { freeAiCredits: { decrement: 1 } },
+    });
+
+    if (updated.count === 0) {
+        throw new Error(
+            "FREE_UPLOAD_CREDITS_EXHAUSTED: You've used all your free upload credits. Add your own OpenAI or Anthropic API key in Profile → API Key to continue."
+        );
+    }
+}
