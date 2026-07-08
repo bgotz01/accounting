@@ -1,8 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import type { LanguageModelV1 } from "ai";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { prisma } from "@/app/lib/prisma";
 
 export type ModelTier = "standard" | "large";
@@ -52,50 +50,24 @@ export function getModel(apiKey: string, tier: ModelTier = "standard"): Language
     );
 }
 
-async function readEnvFileValue(key: string): Promise<string | null> {
-    const candidates = [path.join(process.cwd(), ".env"), path.join(process.cwd(), ".env.local")];
-
-    for (const filePath of candidates) {
-        try {
-            const content = await fs.readFile(filePath, "utf8");
-            const match = content.match(new RegExp(`^${key}=(.+)$`, "m"));
-            if (match?.[1]) {
-                const value = match[1].trim().replace(/^['"]|['"]$/g, "");
-                if (value) return value;
-            }
-        } catch {
-            // Ignore missing files; fall through to other candidates.
-        }
-    }
-
-    return null;
-}
-
 /**
- * Resolves the API key to use: user-supplied key takes priority over the env fallback.
+ * Returns the system-level fallback API key from environment variables.
+ * Checks all known env var names. No filesystem reads — env vars only.
  */
-async function getFallbackApiKey(): Promise<string | null> {
-    const directValue = [
+function getFallbackApiKey(): string | null {
+    const value = [
         process.env.API_KEY,
-        process.env.OPEN_API_KEY,
+        process.env.OPEN_AI_API,      // Vercel env var name
         process.env.OPENAI_API_KEY,
+        process.env.OPEN_API_KEY,
         process.env.ANTHROPIC_API_KEY,
-    ].find((value) => value?.trim());
+    ].find((v) => v?.trim());
 
-    if (directValue?.trim()) {
-        return directValue.trim();
-    }
-
-    const fileValue = await readEnvFileValue("API_KEY")
-        || await readEnvFileValue("OPEN_API_KEY")
-        || await readEnvFileValue("OPENAI_API_KEY")
-        || await readEnvFileValue("ANTHROPIC_API_KEY");
-
-    return fileValue ?? null;
+    return value?.trim() ?? null;
 }
 
 export async function resolveApiKey(userKey?: string | null): Promise<string> {
-    const key = userKey?.trim() || (await getFallbackApiKey()) || "";
+    const key = userKey?.trim() || getFallbackApiKey() || "";
     if (!key) {
         throw new Error("No API key configured. Add your key in Profile → API Key.");
     }
@@ -105,8 +77,8 @@ export async function resolveApiKey(userKey?: string | null): Promise<string> {
 /**
  * Checks whether the env fallback key is being used (i.e. user has no own key).
  */
-export async function isUsingEnvKey(userKey?: string | null): Promise<boolean> {
-    return !userKey?.trim() && !!(await getFallbackApiKey());
+export function isUsingEnvKey(userKey?: string | null): boolean {
+    return !userKey?.trim() && !!getFallbackApiKey();
 }
 
 /**
@@ -121,7 +93,7 @@ export async function consumeAiCredit(userId: string, userKey?: string | null): 
     if (userKey?.trim()) return;
 
     // No env key means AI won't work at all — resolveApiKey will throw later
-    if (!(await getFallbackApiKey())) return;
+    if (!getFallbackApiKey()) return;
 
     // Atomically decrement, but only if credits remain
     const updated = await prisma.user.updateMany({
@@ -143,7 +115,7 @@ export async function consumeUploadCredit(userId: string, userKey?: string | nul
     // Users with their own key are never limited
     if (userKey?.trim()) return;
 
-    if (!(await getFallbackApiKey())) {
+    if (!getFallbackApiKey()) {
         throw new Error("No API key configured. Add your key in Profile → API Key.");
     }
 
