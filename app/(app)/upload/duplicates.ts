@@ -27,30 +27,25 @@ export async function checkDuplicates(): Promise<DuplicateGroup[]> {
     // Return empty array instead of redirecting — caller handles unauthenticated state
     if (!user) return [];
 
-    // Find transactions with same date + amount + description for this user
-    const duplicates = await prisma.$queryRaw<
-        { date: Date; amount: string; description: string; cnt: bigint }[]
-    >`
-    SELECT date, amount::text, description, count(*) as cnt
-    FROM transactions
-    WHERE user_id = ${user.id}
-    GROUP BY date, amount, description
-    HAVING count(*) > 1
-    ORDER BY date DESC
-  `;
+    // Find all (date, amount, description) combinations that appear more than once
+    const duplicateGroups = await prisma.transaction.groupBy({
+        by: ["date", "amount", "description"],
+        where: { userId: user.id },
+        having: { amount: { _count: { gt: 1 } } },
+        orderBy: { date: "desc" },
+    });
 
-    if (duplicates.length === 0) return [];
+    if (duplicateGroups.length === 0) return [];
 
     // For each duplicate group, fetch the individual transactions
     const groups: DuplicateGroup[] = [];
 
-    for (const dup of duplicates) {
+    for (const dup of duplicateGroups) {
         const transactions = await prisma.transaction.findMany({
             where: {
                 userId: user.id,
                 date: dup.date,
-                // Cast the raw string to a number so Prisma's Decimal filter works
-                amount: parseFloat(dup.amount),
+                amount: dup.amount,
                 description: dup.description,
             },
             include: {
@@ -61,9 +56,9 @@ export async function checkDuplicates(): Promise<DuplicateGroup[]> {
 
         groups.push({
             date: dup.date.toISOString().split("T")[0],
-            amount: dup.amount,
+            amount: dup.amount.toString(),
             description: dup.description,
-            count: Number(dup.cnt),
+            count: transactions.length,
             transactions: transactions.map((t) => ({
                 id: t.id,
                 fileId: t.fileId,
