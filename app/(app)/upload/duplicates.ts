@@ -2,7 +2,6 @@
 
 import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
-import { redirect } from "next/navigation";
 
 export type DuplicateGroup = {
     date: string;
@@ -25,11 +24,10 @@ export async function checkDuplicates(): Promise<DuplicateGroup[]> {
         data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-        redirect("/login");
-    }
+    // Return empty array instead of redirecting — caller handles unauthenticated state
+    if (!user) return [];
 
-    // Find transactions with same date + amount for this user
+    // Find transactions with same date + amount + description for this user
     const duplicates = await prisma.$queryRaw<
         { date: Date; amount: string; description: string; cnt: bigint }[]
     >`
@@ -51,7 +49,8 @@ export async function checkDuplicates(): Promise<DuplicateGroup[]> {
             where: {
                 userId: user.id,
                 date: dup.date,
-                amount: dup.amount,
+                // Cast the raw string to a number so Prisma's Decimal filter works
+                amount: parseFloat(dup.amount),
                 description: dup.description,
             },
             include: {

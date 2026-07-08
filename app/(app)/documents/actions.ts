@@ -3,7 +3,6 @@
 import { createClient } from "@/app/lib/supabase/server";
 import { prisma } from "@/app/lib/prisma";
 import { getSignedUrl, downloadFromStorage } from "@/app/lib/storage";
-import { redirect } from "next/navigation";
 
 export async function getAllFiles() {
     const supabase = await createClient();
@@ -12,7 +11,7 @@ export async function getAllFiles() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/login");
+        return [];
     }
 
     const files = await prisma.file.findMany({
