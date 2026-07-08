@@ -1,1 +1,2 @@
--- This is an empty migration.
+-- AlterTable
+ALTER TABLE "files" ADD COLUMN "processing_error" TEXT;
